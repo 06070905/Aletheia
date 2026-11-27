@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>probe</title></head>
+<body><script>
+const raw = localStorage.getItem('mengjian.dream.phone.v1') || '';
+document.title = 'probe:' + (localStorage.getItem('probe') || 'none') + ':raw' + raw.length;
+document.body.textContent = document.title;
+</script></body></html>
