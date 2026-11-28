@@ -79,6 +79,12 @@ const ICON_PATHS = {
   inbox: '<path d="M4 4h16v16H4z"/><path d="M4 14h4l2 3h4l2-3h4"/>',
   sendMail: '<path d="M3 11 21 3l-8 18-2-8-8-2Z"/>',
   star: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/>',
+  gift: '<rect x="4" y="9" width="16" height="12" rx="2"/><path d="M3 9h18v4H3zM12 9v12"/><path d="M12 9c-1.4-3.2-6-4.2-6-1.4C6 9.4 9.2 9 12 9Zm0 0c1.4-3.2 6-4.2 6-1.4C18 9.4 14.8 9 12 9Z"/>',
+  route: '<circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h6a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h1"/>',
+  dice: '<rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/><circle cx="9" cy="15" r="1"/><circle cx="15" cy="15" r="1"/><circle cx="12" cy="12" r="1"/>',
+  pin: '<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.6"/>',
+  cloud: '<path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.3 9 4.5 4.5 0 0 0 7 18Z"/>',
+  box: '<path d="m4 8 8-4 8 4v8l-8 4-8-4Z"/><path d="M4 8l8 4 8-4M12 12v8"/>',
 };
 
 function icon(name, size = 18) {
@@ -89,13 +95,16 @@ function icon(name, size = 18) {
 /* ---------- App definitions ---------- */
 
 const APP_DEFS = [
+  { id: "chat", name: "微信", icon: "chat", tone: "ink" },
   { id: "cards", name: "字卡库", icon: "cards", tone: "paper" },
+  { id: "moments", name: "朋友圈", icon: "moments", tone: "mist" },
   { id: "appearance", name: "外观", icon: "appearance", tone: "mist" },
-  { id: "chat", name: "微信", icon: "chat", tone: "ink", dot: true },
   { id: "mail", name: "邮箱", icon: "mail", tone: "rose" },
   { id: "ledger", name: "记账", icon: "ledger", tone: "paper" },
   { id: "calendar", name: "日历", icon: "calendar", tone: "stone" },
-  { id: "moments", name: "朋友圈", icon: "moments", tone: "mist" },
+  { id: "itinerary", name: "行程", icon: "route", tone: "stone" },
+  { id: "gifts", name: "礼物柜", icon: "gift", tone: "rose" },
+  { id: "entertainment", name: "娱乐", icon: "dice", tone: "paper" },
   { id: "settings", name: "设置", icon: "settings", tone: "paper" },
 ];
 
@@ -133,7 +142,7 @@ function makeDefaultState() {
     { id: "g_night", name: "夜谈", blocked: false, order: 2 },
   ];
 
-  const cards = [
+  const cardSeeds = [
     ["g_daily", "text", "今天也好好吃饭了吗。"],
     ["g_daily", "text", "在想你，只有一点点。"],
     ["g_daily", "text", "刚刚看到一片很好看的云。"],
@@ -156,23 +165,63 @@ function makeDefaultState() {
     ["g_daily", "kaomoji", "(*´▽`*)"],
     ["g_miss", "kaomoji", "(っ˘ω˘ς)"],
     ["g_night", "kaomoji", "ᵕ̈"],
-  ].map(([groupId, type, text], index) => ({
+    ["g_daily", "pat", "轻轻拍了拍你的头。"],
+    ["g_daily", "pat", "把外套披在你肩上。"],
+    ["g_miss", "pat", "隔着屏幕碰了碰你的脸。"],
+    ["g_night", "pat", "给你掖了掖被角。"],
+    ["g_daily", "weather", "☀️", "晴"],
+    ["g_daily", "weather", "🌤️", "晴间多云"],
+    ["g_daily", "weather", "☁️", "阴"],
+    ["g_daily", "weather", "🌧️", "小雨"],
+    ["g_daily", "weather", "🌫️", "薄雾"],
+    ["g_daily", "mood", "☀️", "明亮"],
+    ["g_daily", "mood", "☁️", "平静"],
+    ["g_daily", "mood", "🌙", "疲惫"],
+    ["g_daily", "mood", "🌧️", "低落"],
+    ["g_daily", "mood", "🫧", "心动"],
+    ["g_daily", "status", "在窗边发呆。"],
+    ["g_daily", "status", "刚睡醒，声音还有点哑。"],
+    ["g_daily", "status", "在听一首很旧的歌。"],
+    ["g_miss", "status", "在等你的消息。"],
+    ["g_night", "status", "准备关灯了。"],
+    ["g_daily", "doing", "看书"],
+    ["g_daily", "doing", "发呆"],
+    ["g_daily", "doing", "散步"],
+    ["g_daily", "doing", "喝咖啡"],
+    ["g_daily", "doing", "听歌"],
+    ["g_daily", "doing", "写字"],
+    ["g_daily", "doing", "看云"],
+    ["g_daily", "doing", "整理房间"],
+    ["g_daily", "place", "窗边"],
+    ["g_daily", "place", "旧书店"],
+    ["g_daily", "place", "街角咖啡店"],
+    ["g_daily", "place", "河边"],
+    ["g_daily", "place", "回家的路上"],
+    ["g_daily", "place", "阳台"],
+    ["g_daily", "place", "车站"],
+    ["g_daily", "place", "公园"],
+  ];
+
+  const cards = cardSeeds.map(([groupId, type, text, note = ""], index) => ({
     id: `c_default_${index}`,
     groupId,
     type,
     text,
+    note,
     blocked: false,
-    createdAt: now - (22 - index) * 86400000,
+    order: index,
+    createdAt: now - (cardSeeds.length - index) * 86400000,
   }));
 
   return {
-    version: 1,
+    version: 2,
     createdAt: now,
     profile: {
       userName: "我",
-      partnerName: "沈昼",
+      partnerName: "mj",
       userAvatar: "",
       partnerAvatar: "",
+      togetherSince: "2025-05-20",
     },
     appearance: {
       theme: "auto",
@@ -198,10 +247,24 @@ function makeDefaultState() {
     },
     home: {
       order: APP_DEFS.map((app) => app.id),
+      pages: [
+        ["chat", "cards", "moments", "appearance", "mail", "calendar", "itinerary", "ledger"],
+        ["gifts", "entertainment", "settings"],
+      ],
+      page: 0,
+      moduleOrder: ["clock", "greeting", "couple", "phrase"],
+      phrase: "想见你，在每一个梦里。",
+    },
+    badges: {
+      chat: 0,
+      mail: 0,
+      moments: 0,
+      itinerary: 0,
     },
     cards: {
       groups,
       cards,
+      seededV2: true,
     },
     chat: {
       messages: [
@@ -217,6 +280,13 @@ function makeDefaultState() {
       ],
       pendingReply: null,
       nextProactiveAt: null,
+      nextPatAt: null,
+      status: {
+        weatherId: "",
+        statusId: "",
+        updatedAt: 0,
+        nextAt: 0,
+      },
     },
     settings: {
       replyDelayMin: 3,
@@ -237,19 +307,23 @@ function makeDefaultState() {
       transferMax: 52,
       notify: false,
       typingText: "正在输入…",
+      patChance: 22,
+      momentCommentChance: 65,
+      keepAlive: true,
     },
     mail: {
       letters: [],
       pending: [],
       nextProactiveAt: null,
       settings: {
-        delayMin: 8,
-        delayMax: 30,
+        unit: "hours",
+        delayMin: 1,
+        delayMax: 6,
         replyCountMin: 1,
         replyCountMax: 2,
         proactiveEnabled: false,
-        proactiveMin: 180,
-        proactiveMax: 480,
+        proactiveMin: 3,
+        proactiveMax: 12,
       },
     },
     ledger: {
@@ -258,11 +332,26 @@ function makeDefaultState() {
     },
     calendar: {
       entries: {},
+      anniversaries: [],
+    },
+    itinerary: {
+      entries: {},
+      lastGenerated: "",
+    },
+    gifts: {
+      items: [],
+    },
+    entertainment: {
+      tests: [],
+      surveys: [],
     },
     moments: {
       background: "",
       posts: [],
       pending: [],
+    },
+    reminders: {
+      lastShownDate: "",
     },
   };
 }
@@ -303,17 +392,176 @@ function loadState() {
 
 let S = loadState();
 
+function normalizeHomePages() {
+  const valid = new Set(APP_DEFS.map((app) => app.id));
+  let pages = Array.isArray(S.home.pages) ? S.home.pages.map((page) => (Array.isArray(page) ? page.slice() : [])) : [];
+  if (!pages.length) {
+    const order = (Array.isArray(S.home.order) ? S.home.order : []).filter((id) => valid.has(id));
+    for (const app of APP_DEFS) if (!order.includes(app.id)) order.push(app.id);
+    pages = [];
+    for (let index = 0; index < order.length; index += 8) pages.push(order.slice(index, index + 8));
+  }
+  const seen = new Set();
+  pages = pages.map((page) => page.filter((id) => {
+    if (!valid.has(id) || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  }));
+  const missing = APP_DEFS.map((app) => app.id).filter((id) => !seen.has(id));
+  if (missing.length) {
+    if (!pages.length) pages.push([]);
+    pages[pages.length - 1].push(...missing);
+  }
+  pages = pages.filter((page, index) => page.length || index === 0);
+  if (!pages.length) pages = [APP_DEFS.map((app) => app.id)];
+  S.home.pages = pages;
+  S.home.order = pages.flat();
+  S.home.page = clamp(Number(S.home.page) || 0, 0, pages.length - 1);
+}
+
+function ensureState() {
+  const defaults = makeDefaultState();
+
+  if (!S.profile || typeof S.profile !== "object") S.profile = defaults.profile;
+  if (!S.profile.partnerName || S.profile.partnerName === "沈昼") S.profile.partnerName = "mj";
+  if (!S.profile.userName) S.profile.userName = "我";
+  if (!S.profile.togetherSince) S.profile.togetherSince = defaults.profile.togetherSince;
+
+  S.home = S.home || {};
+  normalizeHomePages();
+  if (!Array.isArray(S.home.moduleOrder)) S.home.moduleOrder = ["clock", "greeting", "couple", "phrase"];
+  for (const key of ["clock", "greeting", "couple", "phrase"]) {
+    if (!S.home.moduleOrder.includes(key)) S.home.moduleOrder.push(key);
+  }
+  if (typeof S.home.phrase !== "string") S.home.phrase = defaults.home.phrase;
+
+  if (!S.badges || typeof S.badges !== "object") S.badges = { chat: 0, mail: 0, moments: 0, itinerary: 0 };
+  for (const key of ["chat", "mail", "moments", "itinerary"]) {
+    S.badges[key] = Math.max(0, Number(S.badges[key]) || 0);
+  }
+
+  S.cards = S.cards || {};
+  if (!Array.isArray(S.cards.groups) || !S.cards.groups.length) S.cards.groups = defaults.cards.groups;
+  if (!Array.isArray(S.cards.cards)) S.cards.cards = [];
+  S.cards.cards.forEach((card, index) => {
+    if (!card.id) card.id = uid("c");
+    if (!card.groupId) card.groupId = S.cards.groups[0].id;
+    if (!Number.isFinite(card.order)) card.order = index;
+    if (typeof card.note !== "string") card.note = "";
+  });
+  if (!S.cards.seededV2) {
+    const existing = new Set(S.cards.cards.map((card) => `${card.type}::${normalizeText(card.text)}`));
+    const extras = defaults.cards.cards.filter((card) => ["pat", "weather", "mood", "status", "doing", "place"].includes(card.type));
+    for (const card of extras) {
+      const key = `${card.type}::${normalizeText(card.text)}`;
+      if (existing.has(key)) continue;
+      S.cards.cards.push({ ...card, id: uid("c"), createdAt: Date.now() });
+      existing.add(key);
+    }
+    S.cards.seededV2 = true;
+  }
+
+  S.chat = S.chat || {};
+  if (!Array.isArray(S.chat.messages)) S.chat.messages = defaults.chat.messages;
+  if (!S.chat.status || typeof S.chat.status !== "object") S.chat.status = { ...defaults.chat.status };
+  S.chat.status.weatherId = S.chat.status.weatherId || "";
+  S.chat.status.moodId = S.chat.status.moodId || "";
+  S.chat.status.statusId = S.chat.status.statusId || "";
+  S.chat.status.date = S.chat.status.date || "";
+  S.chat.status.updatedAt = Number(S.chat.status.updatedAt) || 0;
+  S.chat.status.nextAt = Number(S.chat.status.nextAt) || 0;
+  if (!("nextPatAt" in S.chat)) S.chat.nextPatAt = null;
+
+  S.settings = S.settings || {};
+  for (const [key, value] of Object.entries(defaults.settings)) {
+    if (S.settings[key] === undefined) S.settings[key] = value;
+  }
+
+  S.mail = S.mail || {};
+  S.mail.settings = S.mail.settings || {};
+  for (const [key, value] of Object.entries(defaults.mail.settings)) {
+    if (S.mail.settings[key] === undefined) S.mail.settings[key] = value;
+  }
+  if (S.mail.settings.unit !== "hours") {
+    const toHours = (value, fallback) => clamp(Math.round((Number(value) || fallback) / 60), 1, 999);
+    S.mail.settings.delayMin = toHours(S.mail.settings.delayMin, 8);
+    S.mail.settings.delayMax = Math.max(S.mail.settings.delayMin, toHours(S.mail.settings.delayMax, 30));
+    S.mail.settings.proactiveMin = toHours(S.mail.settings.proactiveMin, 180);
+    S.mail.settings.proactiveMax = Math.max(S.mail.settings.proactiveMin, toHours(S.mail.settings.proactiveMax, 480));
+    S.mail.settings.unit = "hours";
+  }
+
+  S.calendar = S.calendar || {};
+  if (!S.calendar.entries || typeof S.calendar.entries !== "object") S.calendar.entries = {};
+  if (!Array.isArray(S.calendar.anniversaries)) S.calendar.anniversaries = [];
+  if (!S.calendar.notified || typeof S.calendar.notified !== "object") S.calendar.notified = {};
+  for (const [key, entry] of Object.entries(S.calendar.entries)) {
+    if (!entry || typeof entry !== "object") continue;
+    if (!Array.isArray(entry.schedules)) entry.schedules = [];
+    if (entry.anniversary) {
+      if (!S.calendar.anniversaries.some((item) => item.date === key)) {
+        S.calendar.anniversaries.push({ id: uid("a"), date: key, title: "纪念日", yearly: true });
+      }
+      entry.anniversary = false;
+    }
+  }
+
+  S.itinerary = S.itinerary || {};
+  if (!S.itinerary.entries || typeof S.itinerary.entries !== "object") S.itinerary.entries = {};
+  if (typeof S.itinerary.lastGenerated !== "string") S.itinerary.lastGenerated = "";
+
+  S.gifts = S.gifts || {};
+  if (!Array.isArray(S.gifts.items)) S.gifts.items = [];
+  S.gifts.items.forEach((item) => {
+    if (!item.id) item.id = uid("gift");
+    if (!item.category) item.category = "物品";
+    if (typeof item.message !== "string") item.message = "";
+    if (typeof item.image !== "string") item.image = "";
+  });
+
+  S.entertainment = S.entertainment || {};
+  if (!Array.isArray(S.entertainment.tests)) S.entertainment.tests = [];
+  if (!Array.isArray(S.entertainment.surveys)) S.entertainment.surveys = [];
+  S.entertainment.tests.forEach((test) => {
+    if (!Array.isArray(test.questions)) test.questions = [];
+    if (!("userAnswers" in test)) test.userAnswers = null;
+    if (!("partnerAnswers" in test)) test.partnerAnswers = null;
+    if (typeof test.revealed !== "boolean") test.revealed = false;
+  });
+
+  S.moments = S.moments || {};
+  if (!Array.isArray(S.moments.posts)) S.moments.posts = [];
+  if (!Array.isArray(S.moments.pending)) S.moments.pending = [];
+  if (typeof S.moments.background !== "string") S.moments.background = "";
+
+  S.reminders = S.reminders || {};
+  if (typeof S.reminders.lastShownDate !== "string") S.reminders.lastShownDate = "";
+
+  S.appearance = deepMerge(defaults.appearance, S.appearance || {});
+}
+
+ensureState();
+saveState();
+
 const ui = {
   appStack: [],
   homeEditing: false,
+  homePage: 0,
   suppressOpen: false,
   typing: false,
   replyTimer: null,
   proactiveTimer: null,
   mailTimer: null,
   momentTimer: null,
+  patTimer: null,
+  statusTimer: null,
+  keepAliveTimer: null,
+  keepAliveWorker: null,
+  wakeLock: null,
+  sheetCloseTimer: null,
   draft: "",
   quoteId: null,
+  cardSection: "reply",
   cardTab: "text",
   cardGroup: "all",
   cardSearch: "",
@@ -324,7 +572,10 @@ const ui = {
   mailOpenId: null,
   mailComposeSubject: "",
   calendarCursor: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  itineraryCursor: dateKey(),
   momentsReplyTo: null,
+  entertainmentTab: "soul",
+  openTestId: null,
   introDone: false,
 };
 
@@ -436,6 +687,126 @@ function formatMoney(value) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+}
+
+function addDays(date, count) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + count);
+  return next;
+}
+
+function daysBetween(startKey, endKey = dateKey()) {
+  const start = parseDateKey(startKey);
+  const end = parseDateKey(endKey);
+  return Math.max(0, Math.round((end - start) / 86400000));
+}
+
+function parseTimeToMinutes(value) {
+  const [hour, minute] = String(value || "00:00").split(":").map(Number);
+  return (hour || 0) * 60 + (minute || 0);
+}
+
+function minutesToTime(value) {
+  const minutes = clamp(Math.round(value), 0, 23 * 60 + 59);
+  return `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
+}
+
+function cardPool(type) {
+  const blockedGroups = new Set(S.cards.groups.filter((group) => group.blocked).map((group) => group.id));
+  return S.cards.cards.filter((card) => card.type === type && !card.blocked && !blockedGroups.has(card.groupId) && normalizeText(card.text || card.image));
+}
+
+function textCards() {
+  return cardPool("text");
+}
+
+function replyCards() {
+  return ["text", "kaomoji", "emoji", "sticker"].flatMap((type) => cardPool(type));
+}
+
+function stickerCards() {
+  return cardPool("sticker").filter((card) => card.image);
+}
+
+function atmosphereCard(type) {
+  return cardPool(type);
+}
+
+function itineraryCard(type) {
+  return cardPool(type);
+}
+
+function moodCards() {
+  return cardPool("mood");
+}
+
+function moodEmoji(value) {
+  if (!value) return "";
+  const card = S.cards.cards.find((item) => item.type === "mood" && (item.id === value || item.text === value));
+  if (card) return card.text;
+  return MOODS.find((mood) => mood.key === value)?.emoji || value;
+}
+
+function moodLabel(value) {
+  if (!value) return "";
+  const card = S.cards.cards.find((item) => item.type === "mood" && (item.id === value || item.text === value));
+  if (card) return card.note || card.text;
+  return MOODS.find((mood) => mood.key === value)?.label || "";
+}
+
+function addBadge(app, count = 1) {
+  if (!S.badges) S.badges = {};
+  S.badges[app] = Math.max(0, (Number(S.badges[app]) || 0) + count);
+  saveState();
+  updateHomeBadges();
+}
+
+function clearBadge(app) {
+  if (!S.badges || !S.badges[app]) return;
+  S.badges[app] = 0;
+  saveState();
+  updateHomeBadges();
+}
+
+function updateHomeBadges() {
+  $$(".app-item").forEach((item) => {
+    const badge = item.querySelector(".app-badge");
+    if (!badge) return;
+    const count = Number(S.badges?.[item.dataset.appid]) || 0;
+    badge.classList.toggle("show", count > 0);
+    badge.textContent = count > 9 ? "9+" : count ? String(count) : "";
+  });
+}
+
+function notify(title, body, tag = "mengjian") {
+  if (!S.settings.notify) return;
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  if (document.visibilityState === "visible" && currentApp() === "chat") return;
+  try {
+    const notification = new Notification(title || S.profile.partnerName || "他", {
+      body: String(body || "").slice(0, 100),
+      tag: `${tag}-${Date.now()}`,
+      silent: false,
+    });
+    setTimeout(() => notification.close(), 6500);
+  } catch (error) {
+    console.warn("Notification failed", error);
+  }
+}
+
+function pickFiles(accept, callback) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = accept;
+  input.multiple = true;
+  input.style.display = "none";
+  document.body.appendChild(input);
+  input.addEventListener("change", () => {
+    const files = Array.from(input.files || []);
+    if (files.length) callback(files);
+    setTimeout(() => input.remove(), 500);
+  });
+  input.click();
 }
 
 function weekdayCN(date) {
@@ -586,12 +957,72 @@ function greetingForHour(hour) {
   return "夜安";
 }
 
+function homeModuleHTML(key) {
+  const tools = ui.homeEditing ? `
+    <div class="module-tools">
+      <button data-module-move="${key}" data-dir="-1" aria-label="上移">${icon("arrowUp", 12)}</button>
+      <button data-module-move="${key}" data-dir="1" aria-label="下移">${icon("arrowDown", 12)}</button>
+    </div>
+  ` : "";
+  let body = "";
+  if (key === "clock") {
+    body = `<div class="home-clock" id="homeClock">--:--</div>`;
+  } else if (key === "greeting") {
+    body = `<div class="home-greeting" id="homeGreeting"></div>`;
+  } else if (key === "couple") {
+    const days = daysBetween(S.profile.togetherSince || dateKey()) + 1;
+    body = `
+      <button class="couple-widget" id="coupleWidget">
+        <span class="couple-side">
+          ${avatarHTML("partner", "md")}
+          <span class="couple-name">${escapeHTML(S.profile.partnerName || "mj")}</span>
+        </span>
+        <span class="couple-mid">
+          <span class="couple-kicker">在一起</span>
+          <span class="couple-days">${days}</span>
+          <span class="couple-unit">天</span>
+        </span>
+        <span class="couple-side right">
+          ${avatarHTML("me", "md")}
+          <span class="couple-name">${escapeHTML(S.profile.userName || "我")}</span>
+        </span>
+      </button>
+    `;
+  } else if (key === "phrase") {
+    body = `<button class="home-phrase" id="homePhrase">${escapeHTML(S.home.phrase || "想见你，在每一个梦里。")}</button>`;
+  }
+  return `<div class="home-module module-${key}" data-module="${key}">${body}${tools}</div>`;
+}
+
+function homePagesHTML() {
+  const pages = S.home.pages || [];
+  return pages.map((page, index) => `
+    <div class="app-page" data-page="${index}">
+      <div class="app-grid">
+        ${page.map((id) => {
+          const app = APP_MAP[id];
+          if (!app) return "";
+          const count = Number(S.badges?.[app.id]) || 0;
+          return `
+            <button class="app-item tone-${app.tone}" data-appid="${app.id}" aria-label="${app.name}">
+              <span class="app-icon">
+                ${icon(app.icon, 30)}
+                <i class="app-badge ${count ? "show" : ""}">${count > 9 ? "9+" : count || ""}</i>
+              </span>
+              <span class="app-label">${app.name}</span>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
 function updateHomeInfo() {
   const now = new Date();
   const dateEl = $("#homeDate");
   const clockEl = $("#homeClock");
   const greetingEl = $("#homeGreeting");
-  const profileEl = $("#homeProfile");
   const footerEl = $("#homeFooterMark");
 
   if (dateEl) {
@@ -600,45 +1031,23 @@ function updateHomeInfo() {
   if (clockEl) clockEl.textContent = formatClock(now);
   if (greetingEl) greetingEl.textContent = greetingForHour(now.getHours());
   if (footerEl) footerEl.textContent = (S.profile.partnerName || "M").trim().slice(0, 1) || "M";
-
-  if (profileEl) {
-    const showAvatar = S.appearance.showPartnerAvatar;
-    const showName = S.appearance.showPartnerName;
-    if (!showAvatar && !showName) {
-      profileEl.innerHTML = "";
-    } else {
-      profileEl.innerHTML = `
-        ${showAvatar ? avatarHTML("partner") : ""}
-        ${showName ? `<span class="home-profile-name">${escapeHTML(S.profile.partnerName || "他")}</span>` : ""}
-        <i class="home-profile-dot"></i>
-      `;
-    }
-  }
 }
 
 function renderHome() {
-  const grid = $("#appGrid");
-  if (!grid) return;
-  const order = S.home.order.filter((id) => APP_MAP[id]);
-  for (const app of APP_DEFS) {
-    if (!order.includes(app.id)) order.push(app.id);
-  }
-  S.home.order = order;
+  const modules = $("#homeModules");
+  const pages = $("#homePages");
+  const dots = $("#homeDots");
+  if (!modules || !pages || !dots) return;
 
-  grid.innerHTML = order.map((id) => {
-    const app = APP_MAP[id];
-    return `
-      <button class="app-item tone-${app.tone}" data-appid="${app.id}" aria-label="${app.name}">
-        <span class="app-icon">
-          ${icon(app.icon, 30)}
-          ${app.dot ? '<i class="icon-accent"></i>' : ""}
-        </span>
-        <span class="app-label">${app.name}</span>
-      </button>
-    `;
-  }).join("");
+  normalizeHomePages();
+  modules.innerHTML = S.home.moduleOrder.map((key) => homeModuleHTML(key)).join("");
+  pages.innerHTML = homePagesHTML();
+  dots.innerHTML = (S.home.pages || []).map((_, index) => `
+    <button class="home-dot ${index === S.home.page ? "active" : ""}" data-page-dot="${index}" aria-label="第 ${index + 1} 页"></button>
+  `).join("");
 
   updateHomeInfo();
+  updateHomeBadges();
 
   const bg = $("#homeBg");
   if (bg) {
@@ -652,6 +1061,9 @@ function renderHome() {
   }
 
   updateHomeEditButton();
+  requestAnimationFrame(() => {
+    pages.scrollLeft = (S.home.page || 0) * pages.clientWidth;
+  });
 }
 
 function updateHomeEditButton() {
@@ -666,6 +1078,7 @@ function updateHomeEditButton() {
 function enterHomeEdit() {
   ui.homeEditing = true;
   updateHomeEditButton();
+  renderHome();
   if (navigator.vibrate) navigator.vibrate(12);
 }
 
@@ -676,12 +1089,99 @@ function exitHomeEdit() {
     el.classList.remove("dragging", "drop-target");
   });
   updateHomeEditButton();
+  renderHome();
+}
+
+function setHomePage(index) {
+  const pages = $("#homePages");
+  if (!pages) return;
+  const total = S.home.pages.length;
+  const page = clamp(index, 0, total - 1);
+  S.home.page = page;
+  pages.scrollTo({ left: page * pages.clientWidth, behavior: "smooth" });
+  $$(".home-dot").forEach((dot, i) => dot.classList.toggle("active", i === page));
+  saveState();
+}
+
+function moveModule(key, direction) {
+  const order = S.home.moduleOrder.slice();
+  const index = order.indexOf(key);
+  const swap = index + direction;
+  if (index < 0 || swap < 0 || swap >= order.length) return;
+  [order[index], order[swap]] = [order[swap], order[index]];
+  S.home.moduleOrder = order;
+  saveState();
+  renderHome();
+}
+
+function openAppMoveSheet(appId) {
+  const app = APP_MAP[appId];
+  if (!app) return;
+  showSheet({
+    title: `移动「${app.name}」`,
+    body: `<div class="action-list">${S.home.pages.map((page, index) => `
+      <button class="action-item" data-move-page="${index}">${icon("grid", 16)}第 ${index + 1} 页<span class="action-meta">${page.length}</span></button>
+    `).join("")}</div>`,
+    onMount(host) {
+      host.querySelectorAll("[data-move-page]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = Number(button.dataset.movePage);
+          S.home.pages = S.home.pages.map((page) => page.filter((id) => id !== appId));
+          S.home.pages[target].push(appId);
+          S.home.pages = S.home.pages.filter((page, index) => page.length || index === 0);
+          S.home.order = S.home.pages.flat();
+          closeSheet();
+          saveState();
+          renderHome();
+          setTimeout(() => setHomePage(target), 80);
+        });
+      });
+    },
+  });
+}
+
+function openCoupleSheet() {
+  showSheet({
+    title: "在一起",
+    body: `
+      <div class="field">
+        <label class="field-label">开始的日期</label>
+        <input class="input" id="togetherSince" type="date" value="${escapeAttr(S.profile.togetherSince || dateKey())}">
+      </div>
+      <p class="muted" style="font-size:11px;margin:0">每一天都会重新计算。</p>
+    `,
+    actions: `<button class="btn ghost" data-sheet-close>取消</button><button class="btn primary" id="saveTogether">保存</button>`,
+    onMount(host) {
+      host.querySelector("#saveTogether").addEventListener("click", () => {
+        S.profile.togetherSince = host.querySelector("#togetherSince").value || dateKey();
+        saveState();
+        closeSheet();
+        renderHome();
+      });
+    },
+  });
+}
+
+function openPhraseSheet() {
+  showSheet({
+    title: "短语",
+    body: `<div class="field"><label class="field-label">写在桌面上</label><textarea class="textarea" id="homePhraseInput" maxlength="60">${escapeHTML(S.home.phrase || "")}</textarea></div>`,
+    actions: `<button class="btn ghost" data-sheet-close>取消</button><button class="btn primary" id="savePhrase">保存</button>`,
+    onMount(host) {
+      host.querySelector("#savePhrase").addEventListener("click", () => {
+        S.home.phrase = host.querySelector("#homePhraseInput").value.trim();
+        saveState();
+        closeSheet();
+        renderHome();
+      });
+    },
+  });
 }
 
 function bindHomeEvents() {
-  const grid = $("#appGrid");
+  const pages = $("#homePages");
   const editButton = $("#editHomeBtn");
-  if (!grid || !editButton) return;
+  if (!pages || !editButton) return;
 
   editButton.addEventListener("click", () => {
     if (ui.homeEditing) {
@@ -692,14 +1192,48 @@ function bindHomeEvents() {
     }
   });
 
-  grid.addEventListener("click", (event) => {
+  pages.addEventListener("scroll", () => {
+    const width = pages.clientWidth || 1;
+    const page = Math.round(pages.scrollLeft / width);
+    if (page !== S.home.page) {
+      S.home.page = page;
+      $$(".home-dot").forEach((dot, i) => dot.classList.toggle("active", i === page));
+      saveState();
+    }
+  }, { passive: true });
+
+  document.addEventListener("click", (event) => {
+    const dot = event.target.closest("[data-page-dot]");
+    if (dot) {
+      setHomePage(Number(dot.dataset.pageDot));
+      return;
+    }
+    const moduleButton = event.target.closest("[data-module-move]");
+    if (moduleButton) {
+      moveModule(moduleButton.dataset.moduleMove, Number(moduleButton.dataset.dir));
+      return;
+    }
+    if (event.target.closest("#coupleWidget")) {
+      if (ui.homeEditing) openCoupleSheet();
+      return;
+    }
+    if (event.target.closest("#homePhrase")) {
+      if (ui.homeEditing) openPhraseSheet();
+    }
+  });
+
+  pages.addEventListener("click", (event) => {
     const item = event.target.closest(".app-item");
     if (!item) return;
-    if (ui.homeEditing || ui.suppressOpen) return;
+    if (ui.suppressOpen) return;
+    if (ui.homeEditing) {
+      openAppMoveSheet(item.dataset.appid);
+      return;
+    }
     openApp(item.dataset.appid);
   });
 
-  grid.addEventListener("pointerdown", (event) => {
+  pages.addEventListener("pointerdown", (event) => {
     const item = event.target.closest(".app-item");
     if (!item) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -720,10 +1254,15 @@ function bindHomeEvents() {
     } else {
       state.timer = setTimeout(() => {
         if (!homeDrag || homeDrag !== state) return;
+        const appId = state.item.dataset.appid;
         enterHomeEdit();
+        const fresh = pages.querySelector(`[data-appid="${appId}"]`);
+        if (fresh) {
+          state.item = fresh;
+          fresh.classList.add("dragging");
+        }
         state.dragging = true;
         state.moved = true;
-        item.classList.add("dragging");
       }, 430);
     }
 
@@ -750,7 +1289,7 @@ function onHomePointerMove(event) {
   event.preventDefault();
   const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".app-item");
   if (!target || target === state.item) return;
-  const grid = $("#appGrid");
+  const grid = target.closest(".app-grid");
   if (!grid) return;
 
   $$(".app-item.drop-target", grid).forEach((el) => el.classList.remove("drop-target"));
@@ -779,11 +1318,11 @@ function onHomePointerUp() {
     setTimeout(() => {
       ui.suppressOpen = false;
     }, 320);
-    const grid = $("#appGrid");
-    if (grid) {
-      S.home.order = Array.from(grid.children).map((el) => el.dataset.appid);
-      saveState();
-    }
+    const pageEls = $$(".app-page");
+    S.home.pages = pageEls.map((pageEl) => Array.from(pageEl.querySelectorAll(".app-item")).map((el) => el.dataset.appid));
+    S.home.order = S.home.pages.flat();
+    saveState();
+    updateHomeBadges();
   }
 
   homeDrag = null;
@@ -801,6 +1340,9 @@ function openApp(id, options = {}) {
     ui.mailView = "list";
     ui.mailOpenId = null;
   }
+  if (id === "itinerary") ui.itineraryCursor = dateKey();
+  if (id === "entertainment") ui.entertainmentTab = ui.entertainmentTab || "soul";
+  if (S.badges?.[id]) clearBadge(id);
   renderApp();
   $("#appLayer")?.classList.add("active");
 }
@@ -839,6 +1381,9 @@ function renderApp() {
     ledger: renderLedgerApp,
     calendar: renderCalendarApp,
     moments: renderMomentsApp,
+    itinerary: renderItineraryApp,
+    gifts: renderGiftsApp,
+    entertainment: renderEntertainmentApp,
     settings: renderSettingsApp,
     appearance: renderAppearanceApp,
   };
@@ -860,6 +1405,9 @@ function bindCurrentApp(id) {
   if (id === "ledger") bindLedgerApp();
   if (id === "calendar") bindCalendarApp();
   if (id === "moments") bindMomentsApp();
+  if (id === "itinerary") bindItineraryApp();
+  if (id === "gifts") bindGiftsApp();
+  if (id === "entertainment") bindEntertainmentApp();
   if (id === "settings") bindSettingsApp();
   if (id === "appearance") bindAppearanceApp();
 }
@@ -869,6 +1417,12 @@ function bindCurrentApp(id) {
 function showSheet({ title = "", body = "", actions = "", className = "", onMount = null } = {}) {
   const host = $("#sheetHost");
   if (!host) return;
+  if (ui.sheetCloseTimer) {
+    clearTimeout(ui.sheetCloseTimer);
+    ui.sheetCloseTimer = null;
+  }
+  host.hidden = false;
+  host.classList.remove("open");
   host.innerHTML = `
     <div class="sheet-backdrop" data-sheet-close></div>
     <div class="sheet-panel ${className}" role="dialog" aria-modal="true">
@@ -883,7 +1437,6 @@ function showSheet({ title = "", body = "", actions = "", className = "", onMoun
       ${actions ? `<div class="sheet-actions">${actions}</div>` : ""}
     </div>
   `;
-  host.hidden = false;
   requestAnimationFrame(() => host.classList.add("open"));
   host.querySelectorAll("[data-sheet-close]").forEach((el) => {
     el.addEventListener("click", closeSheet);
@@ -895,8 +1448,11 @@ function showSheet({ title = "", body = "", actions = "", className = "", onMoun
 function closeSheet() {
   const host = $("#sheetHost");
   if (!host || host.hidden) return;
+  if (ui.sheetCloseTimer) clearTimeout(ui.sheetCloseTimer);
   host.classList.remove("open");
-  setTimeout(() => {
+  ui.sheetCloseTimer = setTimeout(() => {
+    ui.sheetCloseTimer = null;
+    if (host.classList.contains("open")) return;
     host.hidden = true;
     host.innerHTML = "";
   }, 380);
@@ -1184,6 +1740,40 @@ function messageHTML(message) {
         </div>
       </div>
     `;
+  } else if (message.type === "sticker") {
+    content = `
+      <button class="sticker-bubble" data-msgid="${message.id}" aria-label="表情">
+        <img src="${escapeAttr(message.image || message.text)}" alt="">
+      </button>
+    `;
+  } else if (message.type === "pat") {
+    const who = message.sender === "me" ? "你" : escapeHTML(S.profile.partnerName || "他");
+    const target = message.sender === "me" ? escapeHTML(S.profile.partnerName || "他") : "你";
+    return `
+      <div class="pat-row" data-rowid="${message.id}">
+        <span class="pat-main">${who} 拍了拍 ${target}</span>
+        ${message.text ? `<span class="pat-text">${escapeHTML(message.text)}</span>` : ""}
+      </div>
+    `;
+  } else if (message.type === "gift") {
+    content = `
+      <button class="gift-bubble box-${escapeAttr(message.boxColor || "rose")}" data-gift-msg="${message.id}" data-msgid="${message.id}">
+        <span class="gift-box-icon">${icon("gift", 22)}</span>
+        <span class="gift-box-copy">
+          <span class="gift-box-kicker">${isMe ? "送出的礼物" : "收到的礼物"}</span>
+          <span class="gift-box-name">${escapeHTML(message.giftName || "礼物")}</span>
+          <span class="gift-box-hint">${message.opened ? "点击再看一眼" : "点击打开"}</span>
+        </span>
+      </button>
+    `;
+  } else if (message.type === "test") {
+    content = `
+      <button class="test-card" data-test-msg="${escapeAttr(message.testId)}" data-msgid="${message.id}">
+        <span class="test-card-kicker">灵魂默契</span>
+        <span class="test-card-title">${escapeHTML(message.title || "默契测试")}</span>
+        <span class="test-card-hint">点击打开</span>
+      </button>
+    `;
   } else {
     content = `<div class="bubble" data-msgid="${message.id}">${quoteHTML(message.quote)}<span class="bubble-text">${escapeHTML(message.text)}</span></div>`;
   }
@@ -1246,6 +1836,56 @@ function composerQuoteHTML() {
   `;
 }
 
+function partnerStatusInfo() {
+  const status = S.chat.status;
+  const today = dateKey();
+  let changed = false;
+  if (status.date !== today) {
+    const weatherPool = atmosphereCard("weather");
+    const moodPool = atmosphereCard("mood");
+    status.date = today;
+    status.weatherId = weatherPool.length ? pick(weatherPool).id : "";
+    status.moodId = moodPool.length ? pick(moodPool).id : "";
+    status.statusId = "";
+    status.nextAt = 0;
+    changed = true;
+  }
+  const statusPool = atmosphereCard("status");
+  const now = Date.now();
+  if (!status.statusId || !status.nextAt || now >= status.nextAt) {
+    if (statusPool.length) {
+      const others = statusPool.filter((card) => card.id !== status.statusId);
+      status.statusId = pick(others.length ? others : statusPool).id;
+    }
+    status.updatedAt = now;
+    status.nextAt = now + randInt(16, 64) * 60000;
+    changed = true;
+  }
+  if (changed) saveState();
+  const weather = S.cards.cards.find((card) => card.id === status.weatherId);
+  const mood = S.cards.cards.find((card) => card.id === status.moodId);
+  const current = S.cards.cards.find((card) => card.id === status.statusId);
+  return {
+    weather: weather?.text || "",
+    mood: mood?.text || "",
+    status: current?.text || "",
+  };
+}
+
+function partnerStatusLineHTML() {
+  const info = partnerStatusInfo();
+  const parts = [];
+  if (info.mood) parts.push(`<span class="status-emoji">${escapeHTML(info.mood)}</span>`);
+  if (info.weather) parts.push(`<span class="status-emoji">${escapeHTML(info.weather)}</span>`);
+  if (info.status) parts.push(`<span class="status-word">${escapeHTML(info.status)}</span>`);
+  return parts.join('<span class="status-sep">·</span>');
+}
+
+function refreshChatStatusLine() {
+  const line = $("#chatStatusLine");
+  if (line) line.innerHTML = partnerStatusLineHTML();
+}
+
 function renderChatApp() {
   const partnerName = S.profile.partnerName || "他";
   const nameVisible = S.appearance.showPartnerName;
@@ -1260,11 +1900,11 @@ function renderChatApp() {
     <div class="app chat-app ${bubbleClass}" style="${customBubble}">
       <header class="app-header chat-header">
         <button class="icon-btn" data-back aria-label="返回">${icon("back", 20)}</button>
-        <div class="chat-peer">
-          ${avatarVisible ? avatarHTML("partner", "sm") : ""}
+        <div class="chat-peer" id="chatPeer" title="">
+          ${avatarVisible ? `<span class="chat-peer-avatar" data-pat-hit>${avatarHTML("partner", "sm")}</span>` : `<span class="chat-peer-avatar ghost" data-pat-hit></span>`}
           <div class="chat-peer-meta">
             <div class="chat-peer-name">${nameVisible ? escapeHTML(partnerName) : "微信"}</div>
-            <div class="chat-status">${ui.typing ? escapeHTML(S.settings.typingText || "正在输入…") : ""}</div>
+            <div class="chat-status" id="chatStatusLine">${ui.typing ? escapeHTML(S.settings.typingText || "正在输入…") : partnerStatusLineHTML()}</div>
           </div>
         </div>
         <button class="icon-btn" id="chatMenuBtn" aria-label="对话菜单">${icon("more", 19)}</button>
@@ -1329,6 +1969,14 @@ function bindChatApp() {
   });
 
   $("#messageList")?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-gift-msg]")) {
+      openGiftMessage(event.target.closest("[data-gift-msg]").dataset.giftMsg);
+      return;
+    }
+    if (event.target.closest("[data-test-msg]")) {
+      openTestById(event.target.closest("[data-test-msg]").dataset.testMsg);
+      return;
+    }
     if (event.target.closest("[data-transfer-accept]")) {
       resolveTransfer(event.target.closest("[data-transfer-accept]").dataset.transferAccept, "accept");
       return;
@@ -1343,6 +1991,25 @@ function bindChatApp() {
     const message = S.chat.messages.find((item) => item.id === row.dataset.rowid);
     if (message) openMessageActions(message);
   });
+
+  const peer = $("#chatPeer");
+  if (peer) {
+    let lastTap = 0;
+    peer.addEventListener("click", (event) => {
+      if (!event.target.closest("[data-pat-hit]")) return;
+      const now = Date.now();
+      if (now - lastTap < 340) {
+        lastTap = 0;
+        performPat();
+      } else {
+        lastTap = now;
+      }
+    });
+    peer.addEventListener("dblclick", (event) => {
+      event.preventDefault();
+      performPat();
+    });
+  }
 }
 
 function sendUserText(raw) {
@@ -1383,6 +2050,7 @@ function appendPartnerMessage(message, options = {}) {
   markUserMessagesRead();
   saveState();
   refreshApp("chat");
+  if (currentApp() !== "chat") addBadge("chat");
   if (options.notify !== false) notifyPartner(full);
   return full;
 }
@@ -1521,6 +2189,14 @@ function deliverQuestionnaireAnswer(questionnaireId) {
     selected,
     multiple: question.multiple,
   });
+  const survey = S.entertainment.surveys
+    .slice()
+    .reverse()
+    .find((item) => item.question === question.question && !(item.selected || []).length);
+  if (survey) {
+    survey.selected = selected.slice();
+    saveState();
+  }
   return message;
 }
 
@@ -1538,6 +2214,104 @@ function resolveTransfer(messageId, action) {
       transfer: false,
     });
   }, 450);
+}
+
+function queuePartnerReply(source, options = {}, attempt = 0) {
+  if (attempt > 40) return;
+  if (S.chat.pendingReply) {
+    setTimeout(() => queuePartnerReply(source, options, attempt + 1), 1500);
+    return;
+  }
+  triggerPartnerReply(source, options);
+}
+
+function performPat() {
+  const pool = atmosphereCard("pat");
+  if (!pool.length) {
+    toast("氛围里还没有拍一拍");
+    return;
+  }
+  const card = pick(pool);
+  appendPartnerMessage({
+    sender: "me",
+    type: "pat",
+    text: card.text,
+  }, { notify: false });
+  saveState();
+  refreshApp("chat");
+  setTimeout(() => queuePartnerReply("pat", {
+    delay: randInt(1200, 2600),
+    count: 1,
+    quote: false,
+    transfer: false,
+  }), 500);
+  if (navigator.vibrate) navigator.vibrate(14);
+}
+
+function performPartnerPat() {
+  const pool = atmosphereCard("pat");
+  if (!pool.length) return;
+  appendPartnerMessage({
+    type: "pat",
+    text: pick(pool).text,
+  });
+}
+
+function schedulePatTimer() {
+  clearTimeout(ui.patTimer);
+  const chance = clamp(Number(S.settings.patChance) || 0, 0, 100);
+  if (chance <= 0) {
+    S.chat.nextPatAt = null;
+    return;
+  }
+  if (!S.chat.nextPatAt) {
+    S.chat.nextPatAt = Date.now() + randInt(28, 95) * 60000;
+    saveState();
+  }
+  ui.patTimer = setTimeout(firePatTimer, Math.max(1200, S.chat.nextPatAt - Date.now()));
+}
+
+function firePatTimer() {
+  const chance = clamp(Number(S.settings.patChance) || 0, 0, 100);
+  if (chance <= 0) {
+    S.chat.nextPatAt = null;
+    saveState();
+    return;
+  }
+  if (isQuietNow()) {
+    S.chat.nextPatAt = nextQuietEnd() + randInt(5, 20) * 60000;
+    saveState();
+    schedulePatTimer();
+    return;
+  }
+  if (Math.random() * 100 < chance && !S.chat.pendingReply) {
+    performPartnerPat();
+  }
+  S.chat.nextPatAt = Date.now() + randInt(28, 95) * 60000;
+  saveState();
+  schedulePatTimer();
+}
+
+function openGiftMessage(messageId) {
+  const message = S.chat.messages.find((item) => item.id === messageId);
+  if (!message || message.type !== "gift") return;
+  if (!message.opened) {
+    message.opened = true;
+    saveState();
+    refreshApp("chat");
+  }
+  showSheet({
+    title: message.sender === "me" ? "送出的礼物" : "收到的礼物",
+    body: `
+      <div class="gift-detail box-${escapeAttr(message.boxColor || "rose")}">
+        ${message.giftImage ? `<div class="gift-detail-image"><img src="${escapeAttr(message.giftImage)}" alt=""></div>` : `<div class="gift-detail-image placeholder">${icon("gift", 40)}</div>`}
+        <div class="gift-detail-name">${escapeHTML(message.giftName || "礼物")}</div>
+        ${message.giftCategory ? `<div class="gift-detail-cat">${escapeHTML(message.giftCategory)}</div>` : ""}
+        ${message.giftMessage ? `<div class="gift-detail-message">${escapeHTML(message.giftMessage)}</div>` : ""}
+      </div>
+    `,
+    actions: `<button class="btn primary" data-sheet-close>收好</button>`,
+  });
 }
 
 function openMessageActions(message) {
@@ -1655,15 +2429,21 @@ function openPlusMenu() {
 
 function openEmojiPicker() {
   const emojis = availableCards().filter((card) => card.type === "emoji" || card.type === "kaomoji");
-  if (!emojis.length) {
+  const stickers = stickerCards();
+  if (!emojis.length && !stickers.length) {
     toast("还没有表情字卡");
     return;
   }
   showSheet({
     title: "表情",
-    body: `<div class="emoji-grid">${emojis.map((card) => `
-      <button class="emoji-cell ${card.type === "kaomoji" ? "kao" : ""}" data-emoji="${card.id}">${escapeHTML(card.text)}</button>
-    `).join("")}</div>`,
+    body: `
+      ${stickers.length ? `<div class="emoji-grid sticker-grid">${stickers.map((card) => `
+        <button class="emoji-cell sticker-cell" data-sticker="${card.id}"><img src="${escapeAttr(card.image)}" alt=""></button>
+      `).join("")}</div>` : ""}
+      ${emojis.length ? `<div class="emoji-grid">${emojis.map((card) => `
+        <button class="emoji-cell ${card.type === "kaomoji" ? "kao" : ""}" data-emoji="${card.id}">${escapeHTML(card.text)}</button>
+      `).join("")}</div>` : ""}
+    `,
     onMount(host) {
       host.querySelectorAll("[data-emoji]").forEach((button) => {
         button.addEventListener("click", () => {
@@ -1672,8 +2452,31 @@ function openEmojiPicker() {
           if (card) setTimeout(() => sendUserText(card.text), 100);
         });
       });
+      host.querySelectorAll("[data-sticker]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const card = S.cards.cards.find((item) => item.id === button.dataset.sticker);
+          closeSheet();
+          if (card) setTimeout(() => sendUserSticker(card), 100);
+        });
+      });
     },
   });
+}
+
+function sendUserSticker(card) {
+  if (!card?.image) return;
+  S.chat.messages.push({
+    id: uid("m"),
+    sender: "me",
+    type: "sticker",
+    image: card.image,
+    text: "",
+    timestamp: Date.now(),
+    read: false,
+    quote: null,
+  });
+  saveState();
+  refreshApp("chat");
 }
 
 function openUserTransferSheet() {
@@ -1823,6 +2626,14 @@ function openQuestionnaireSheet() {
           read: false,
         };
         S.chat.messages.push(message);
+        S.entertainment.surveys.push({
+          id: uid("survey"),
+          question,
+          options: unique.slice(0, 10),
+          multiple,
+          selected: [],
+          createdAt: Date.now(),
+        });
         S.chat.pendingReply = {
           dueAt: Date.now() + randInt(2600, 5200),
           source: "questionnaire",
@@ -1844,9 +2655,26 @@ function openQuestionnaireSheet() {
 
 const CARD_TYPES = {
   text: "字卡",
-  emoji: "表情",
   kaomoji: "颜文字",
+  emoji: "emoji",
+  sticker: "表情包",
+  pat: "拍一拍",
+  weather: "天气",
+  mood: "心情",
+  status: "对方状态",
+  doing: "正在做",
+  place: "地点",
 };
+
+const CARD_SECTIONS = {
+  reply: { label: "回复库", tabs: ["text", "kaomoji", "emoji", "sticker"] },
+  atmosphere: { label: "氛围", tabs: ["pat", "weather", "mood", "status"] },
+  itinerary: { label: "行程", tabs: ["doing", "place"] },
+};
+
+function cardSectionOf(type) {
+  return Object.entries(CARD_SECTIONS).find(([, section]) => section.tabs.includes(type))?.[0] || "reply";
+}
 
 function ensureGroup(name) {
   const clean = normalizeText(name) || "未分组";
@@ -1858,10 +2686,14 @@ function ensureGroup(name) {
   return group;
 }
 
-function addCardRecord({ text, type = "text", groupId }) {
+function addCardRecord({ text, type = "text", groupId, note = "", image = "" }) {
   const clean = String(text || "").trim();
-  if (!clean) return false;
-  const duplicate = S.cards.cards.some((card) => card.type === type && normalizeText(card.text) === normalizeText(clean));
+  if (!clean && !image) return false;
+  const duplicate = S.cards.cards.some((card) => {
+    if (card.type !== type) return false;
+    if (type === "sticker") return image ? card.image === image : normalizeText(card.text) === normalizeText(clean);
+    return normalizeText(card.text) === normalizeText(clean);
+  });
   if (duplicate) return false;
   const group = S.cards.groups.find((item) => item.id === groupId) || S.cards.groups[0] || ensureGroup("未分组");
   S.cards.cards.push({
@@ -1869,7 +2701,10 @@ function addCardRecord({ text, type = "text", groupId }) {
     groupId: group.id,
     type,
     text: clean,
+    note: String(note || "").trim(),
+    image,
     blocked: false,
+    order: S.cards.cards.length,
     createdAt: Date.now(),
   });
   return true;
@@ -1881,11 +2716,11 @@ function cardItemsHTML() {
   const groupOrder = Object.fromEntries(S.cards.groups.map((group) => [group.id, group.order || 0]));
 
   let cards = S.cards.cards.filter((card) => card.type === ui.cardTab);
-  if (ui.cardGroup !== "all") cards = cards.filter((card) => card.groupId === ui.cardGroup);
+  if (ui.cardSection === "reply" && ui.cardGroup !== "all") cards = cards.filter((card) => card.groupId === ui.cardGroup);
   if (query) {
     cards = cards.filter((card) => {
       const group = groupMap[card.groupId];
-      return `${card.text} ${group?.name || ""}`.toLowerCase().includes(query);
+      return `${card.text} ${card.note || ""} ${group?.name || ""}`.toLowerCase().includes(query);
     });
   }
 
@@ -1896,21 +2731,26 @@ function cardItemsHTML() {
       return diff || b.createdAt - a.createdAt;
     }
     if (ui.cardSort === "text") return a.text.localeCompare(b.text, "zh-CN");
+    if (ui.cardSort === "manual") return (a.order || 0) - (b.order || 0);
     return b.createdAt - a.createdAt;
   });
 
   if (!cards.length) {
-    return `<div class="empty">${icon("cards", 34)}<p>${query ? "没有找到" : "还没有字卡"}</p></div>`;
+    return `<div class="empty">${icon("cards", 34)}<p>${query ? "没有找到" : "还没有内容"}</p></div>`;
   }
 
   return cards.map((card) => {
     const selected = ui.selectedCards.has(card.id);
     const group = groupMap[card.groupId];
+    const isSticker = card.type === "sticker";
     return `
-      <div class="card-item ${selected ? "selected" : ""} ${card.blocked ? "blocked" : ""}" data-cardid="${card.id}">
+      <div class="card-item ${selected ? "selected" : ""} ${card.blocked ? "blocked" : ""} ${isSticker ? "is-sticker" : ""}" data-cardid="${card.id}">
         ${ui.cardSelectMode ? `<span class="card-check ${selected ? "on" : ""}">${icon("check", 12)}</span>` : ""}
         <div class="card-content">
-          <div class="card-text ${card.type === "kaomoji" ? "kao" : ""} ${card.type === "emoji" ? "emoji" : ""}">${escapeHTML(card.text)}</div>
+          ${isSticker
+            ? `<div class="card-sticker"><img src="${escapeAttr(card.image)}" alt=""></div>`
+            : `<div class="card-text ${card.type === "kaomoji" ? "kao" : ""} ${["emoji", "weather", "mood"].includes(card.type) ? "emoji" : ""}">${escapeHTML(card.text)}</div>`}
+          ${card.note ? `<div class="card-note">${escapeHTML(card.note)}</div>` : ""}
           <div class="card-meta">
             <span>${escapeHTML(group?.name || "未分组")}</span>
             <span>${formatShortDate(card.createdAt)}</span>
@@ -1936,7 +2776,8 @@ function updateBulkCount() {
 }
 
 function renderCardApp() {
-  const total = S.cards.cards.filter((card) => card.type === ui.cardTab).length;
+  const section = CARD_SECTIONS[ui.cardSection] || CARD_SECTIONS.reply;
+  if (!section.tabs.includes(ui.cardTab)) ui.cardTab = section.tabs[0];
   const groups = S.cards.groups.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
   const groupChips = [
     `<button class="chip ${ui.cardGroup === "all" ? "active" : ""}" data-group="all">全部</button>`,
@@ -1958,9 +2799,15 @@ function renderCardApp() {
       </header>
 
       <div class="app-body">
-        <div class="segmented card-tabs">
-          ${Object.entries(CARD_TYPES).map(([key, label]) => `
-            <button class="${ui.cardTab === key ? "active" : ""}" data-card-tab="${key}">${label}</button>
+        <div class="segmented card-sections">
+          ${Object.entries(CARD_SECTIONS).map(([key, item]) => `
+            <button class="${ui.cardSection === key ? "active" : ""}" data-card-section="${key}">${item.label}</button>
+          `).join("")}
+        </div>
+
+        <div class="card-tabs">
+          ${section.tabs.map((key) => `
+            <button class="card-tab ${ui.cardTab === key ? "active" : ""}" data-card-tab="${key}">${CARD_TYPES[key]}</button>
           `).join("")}
         </div>
 
@@ -1972,7 +2819,7 @@ function renderCardApp() {
           <button class="icon-btn filled" id="cardSortBtn" aria-label="排序">${icon("sort", 18)}</button>
         </div>
 
-        <div class="chip-scroll card-groups">${groupChips}</div>
+        ${ui.cardSection === "reply" ? `<div class="chip-scroll card-groups">${groupChips}</div>` : ""}
 
         <div class="card-scroll" id="cardScroll">
           <div class="card-list" id="cardListWrap">${cardItemsHTML()}</div>
@@ -1993,6 +2840,10 @@ function renderCardApp() {
 
 function bindCardApp() {
   $("#cardAddBtn")?.addEventListener("click", () => {
+    if (ui.cardTab === "sticker") {
+      openStickerImportSheet();
+      return;
+    }
     openAddCardSheet({
       type: ui.cardTab,
       groupId: ui.cardGroup !== "all" ? ui.cardGroup : undefined,
@@ -2026,10 +2877,19 @@ function bindCardApp() {
     renderCardItemsOnly();
   });
 
+  $$("[data-card-section]").forEach((button) => {
+    button.addEventListener("click", () => {
+      ui.cardSection = button.dataset.cardSection;
+      ui.cardTab = CARD_SECTIONS[ui.cardSection].tabs[0];
+      ui.cardGroup = "all";
+      ui.selectedCards.clear();
+      refreshApp("cards");
+    });
+  });
+
   $$("[data-card-tab]").forEach((button) => {
     button.addEventListener("click", () => {
       ui.cardTab = button.dataset.cardTab;
-      ui.cardGroup = "all";
       ui.selectedCards.clear();
       refreshApp("cards");
     });
@@ -2106,15 +2966,22 @@ function bindCardApp() {
 function openAddCardSheet({ text = "", type = "text", groupId, onSaved = null } = {}) {
   const groups = S.cards.groups.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
   const selectedGroup = groups.find((group) => group.id === groupId)?.id || groups[0]?.id || "";
+  const section = CARD_SECTIONS[cardSectionOf(type)] || CARD_SECTIONS.reply;
+  const types = section.tabs.filter((key) => key !== "sticker");
+  if (!types.includes(type)) type = types[0] || "text";
   showSheet({
-    title: "添加字卡",
+    title: "添加内容",
     body: `
       <div class="segmented" id="addCardType">
-        ${Object.entries(CARD_TYPES).map(([key, label]) => `<button class="${type === key ? "active" : ""}" data-add-type="${key}">${label}</button>`).join("")}
+        ${types.map((key) => `<button class="${type === key ? "active" : ""}" data-add-type="${key}">${CARD_TYPES[key]}</button>`).join("")}
       </div>
       <div class="field">
         <label class="field-label">内容</label>
         <textarea class="textarea" id="addCardText" placeholder="写下一句话">${escapeHTML(text)}</textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">备注（可选）</label>
+        <input class="input" id="addCardNote" type="text" maxlength="30" placeholder="含义或说明">
       </div>
       <div class="field">
         <label class="field-label">分组</label>
@@ -2131,7 +2998,7 @@ function openAddCardSheet({ text = "", type = "text", groupId, onSaved = null } 
           currentType = button.dataset.addType;
           host.querySelectorAll("[data-add-type]").forEach((item) => item.classList.toggle("active", item === button));
           const field = host.querySelector("#addCardText");
-          field.placeholder = currentType === "emoji" ? "输入一个表情" : currentType === "kaomoji" ? "输入一段颜文字" : "写下一句话";
+          field.placeholder = currentType === "emoji" || currentType === "weather" || currentType === "mood" ? "输入一个表情" : currentType === "kaomoji" ? "输入一段颜文字" : currentType === "pat" ? "写一个拍一拍动作" : currentType === "doing" ? "正在做的事" : currentType === "place" ? "一个地点" : "写下一句话";
         });
       });
       host.querySelector("#saveCard").addEventListener("click", () => {
@@ -2141,7 +3008,8 @@ function openAddCardSheet({ text = "", type = "text", groupId, onSaved = null } 
           return;
         }
         const groupIdValue = host.querySelector("#addCardGroup").value;
-        if (!addCardRecord({ text: value, type: currentType, groupId: groupIdValue })) {
+        const note = host.querySelector("#addCardNote").value.trim();
+        if (!addCardRecord({ text: value, type: currentType, groupId: groupIdValue, note })) {
           toast("已经有这张字卡了");
           return;
         }
@@ -2154,12 +3022,81 @@ function openAddCardSheet({ text = "", type = "text", groupId, onSaved = null } 
   });
 }
 
+function openStickerImportSheet() {
+  const groups = S.cards.groups.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+  let selectedGroup = ui.cardGroup !== "all" ? ui.cardGroup : groups[0]?.id;
+  let pending = [];
+
+  showSheet({
+    title: "添加表情包",
+    body: `
+      <div class="sticker-import">
+        <button class="sticker-drop" id="stickerPick">
+          ${icon("image", 26)}
+          <span>从相册选择（可多选）</span>
+        </button>
+        <div class="sticker-preview-grid" id="stickerPreview"></div>
+      </div>
+      <div class="field">
+        <label class="field-label">分组</label>
+        <select class="select" id="stickerGroup">
+          ${groups.map((group) => `<option value="${group.id}" ${group.id === selectedGroup ? "selected" : ""}>${escapeHTML(group.name)}</option>`).join("")}
+        </select>
+      </div>
+    `,
+    actions: `<button class="btn ghost" data-sheet-close>取消</button><button class="btn primary" id="saveStickers">加入</button>`,
+    onMount(host) {
+      const preview = host.querySelector("#stickerPreview");
+      const paint = () => {
+        preview.innerHTML = pending.map((item, index) => `
+          <div class="sticker-preview"><img src="${escapeAttr(item)}" alt=""><button data-sticker-remove="${index}" aria-label="移除">${icon("close", 11)}</button></div>
+        `).join("");
+        preview.querySelectorAll("[data-sticker-remove]").forEach((button) => {
+          button.addEventListener("click", () => {
+            pending.splice(Number(button.dataset.stickerRemove), 1);
+            paint();
+          });
+        });
+      };
+      host.querySelector("#stickerPick").addEventListener("click", () => {
+        pickFiles("image/*", (files) => {
+          files.forEach((file) => {
+            readImageFile(file, (dataUrl) => {
+              pending.push(dataUrl);
+              paint();
+            }, 700);
+          });
+        });
+      });
+      host.querySelector("#saveStickers").addEventListener("click", () => {
+        if (!pending.length) {
+          toast("还没有选择图片");
+          return;
+        }
+        const groupId = host.querySelector("#stickerGroup").value;
+        let count = 0;
+        pending.forEach((image, index) => {
+          if (addCardRecord({ text: `表情 ${Date.now()}-${index}`, type: "sticker", groupId, image })) count += 1;
+        });
+        saveState();
+        closeSheet();
+        ui.cardSection = "reply";
+        ui.cardTab = "sticker";
+        refreshApp("cards");
+        toast(count ? `已加入 ${count} 个表情` : "这些表情已经在库里了");
+      });
+    },
+  });
+}
+
 function openCardActions(card) {
   showSheet({
     title: "字卡",
-    body: `<div class="soft-panel" style="font-size:13px;line-height:1.7;white-space:pre-wrap">${escapeHTML(card.text)}</div>
+    body: `${card.type === "sticker" && card.image ? `<div class="card-sticker" style="margin-bottom:12px"><img src="${escapeAttr(card.image)}" alt=""></div>` : `<div class="soft-panel" style="font-size:13px;line-height:1.7;white-space:pre-wrap">${escapeHTML(card.text)}</div>`}
       <div class="action-list">
         <button class="action-item" data-action="move">${icon("folder", 17)}移动到分组</button>
+        <button class="action-item" data-action="up">${icon("arrowUp", 17)}向前移动</button>
+        <button class="action-item" data-action="down">${icon("arrowDown", 17)}向后移动</button>
         <button class="action-item" data-action="block">${icon(card.blocked ? "eye" : "ban", 17)}${card.blocked ? "取消屏蔽" : "屏蔽这张字卡"}</button>
         <button class="action-item danger" data-action="delete">${icon("trash", 17)}删除</button>
       </div>`,
@@ -2173,6 +3110,26 @@ function openCardActions(card) {
           toast("已移动");
         }), 120);
       });
+      const shift = (direction) => {
+        const siblings = S.cards.cards
+          .filter((item) => item.type === card.type)
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
+        const index = siblings.findIndex((item) => item.id === card.id);
+        const swap = index + direction;
+        if (index < 0 || swap < 0 || swap >= siblings.length) {
+          closeSheet();
+          return;
+        }
+        siblings.forEach((item, i) => { item.order = i; });
+        const temp = siblings[index].order;
+        siblings[index].order = siblings[swap].order;
+        siblings[swap].order = temp;
+        saveState();
+        closeSheet();
+        setTimeout(() => refreshApp("cards"), 80);
+      };
+      host.querySelector('[data-action="up"]')?.addEventListener("click", () => shift(-1));
+      host.querySelector('[data-action="down"]')?.addEventListener("click", () => shift(1));
       host.querySelector('[data-action="block"]')?.addEventListener("click", () => {
         card.blocked = !card.blocked;
         saveState();
@@ -2338,12 +3295,24 @@ function importCardsTXT() {
       let type = "text";
       let groupId = S.cards.groups.slice().sort((a, b) => (a.order || 0) - (b.order || 0))[0]?.id;
       let count = 0;
+      const typeMap = {
+        "字卡": "text",
+        "表情": "emoji",
+        "颜文字": "kaomoji",
+        "拍一拍": "pat",
+        "天气": "weather",
+        "心情": "mood",
+        "对方状态": "status",
+        "状态": "status",
+        "正在做": "doing",
+        "地点": "place",
+      };
       for (const raw of text.split(/\r?\n/)) {
         const line = raw.trim();
         if (!line) continue;
-        const section = line.match(/^#\s*(字卡|表情|颜文字)$/);
+        const section = line.match(/^#\s*(字卡|表情|颜文字|拍一拍|天气|心情|对方状态|状态|正在做|地点)$/);
         if (section) {
-          type = section[1] === "表情" ? "emoji" : section[1] === "颜文字" ? "kaomoji" : "text";
+          type = typeMap[section[1]] || "text";
           continue;
         }
         const groupMatch = line.match(/^【(.+)】$/) || line.match(/^\[(.+)\]$/);
@@ -2364,6 +3333,7 @@ function exportCardsTXT() {
   const lines = [];
   const groups = S.cards.groups.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
   for (const [type, label] of Object.entries(CARD_TYPES)) {
+    if (type === "sticker") continue;
     lines.push(`# ${label}`);
     for (const group of groups) {
       const cards = S.cards.cards.filter((card) => card.type === type && card.groupId === group.id);
@@ -2694,12 +3664,12 @@ function bindMailApp() {
       };
       S.mail.letters.push(letter);
       const settings = S.mail.settings;
-      const min = Math.max(1, Number(settings.delayMin) || 8);
-      const max = Math.max(min, Number(settings.delayMax) || 30);
+      const min = Math.max(1, Number(settings.delayMin) || 1);
+      const max = Math.max(min, Number(settings.delayMax) || 6);
       S.mail.pending.push({
         id: uid("mp"),
         letterId: letter.id,
-        dueAt: Date.now() + randInt(min * 60000, max * 60000),
+        dueAt: Date.now() + randInt(min * 3600000, max * 3600000),
       });
       saveState();
       ui.mailView = "list";
@@ -2729,7 +3699,7 @@ function openMailSettings() {
     title: "信件设置",
     body: `
       <div class="field">
-        <label class="field-label">回信时间（分钟）</label>
+        <label class="field-label">回信时间（小时）</label>
         <div class="range-pair">
           <input class="input" id="mailDelayMin" type="number" min="1" max="999" value="${settings.delayMin}">
           <span>至</span>
@@ -2749,7 +3719,7 @@ function openMailSettings() {
         <button class="toggle ${settings.proactiveEnabled ? "on" : ""}" id="mailProactiveToggle"></button>
       </div>
       <div class="field" id="mailProactiveFields" style="${settings.proactiveEnabled ? "" : "opacity:.45"}">
-        <label class="field-label">主动写信间隔（分钟）</label>
+        <label class="field-label">主动写信间隔（小时）</label>
         <div class="range-pair">
           <input class="input" id="mailProactiveMin" type="number" min="1" max="9999" value="${settings.proactiveMin}">
           <span>至</span>
@@ -2768,12 +3738,12 @@ function openMailSettings() {
       });
 
       host.querySelector("#saveMailSettings").addEventListener("click", () => {
-        const delayMin = clamp(Number(host.querySelector("#mailDelayMin").value) || 8, 1, 999);
-        const delayMax = clamp(Number(host.querySelector("#mailDelayMax").value) || 30, delayMin, 999);
+        const delayMin = clamp(Number(host.querySelector("#mailDelayMin").value) || 1, 1, 999);
+        const delayMax = clamp(Number(host.querySelector("#mailDelayMax").value) || 6, delayMin, 999);
         const countMin = clamp(Number(host.querySelector("#mailCountMin").value) || 1, 1, 8);
         const countMax = clamp(Number(host.querySelector("#mailCountMax").value) || 2, countMin, 8);
-        const proactiveMin = clamp(Number(host.querySelector("#mailProactiveMin").value) || 180, 1, 9999);
-        const proactiveMax = clamp(Number(host.querySelector("#mailProactiveMax").value) || 480, proactiveMin, 9999);
+        const proactiveMin = clamp(Number(host.querySelector("#mailProactiveMin").value) || 3, 1, 9999);
+        const proactiveMax = clamp(Number(host.querySelector("#mailProactiveMax").value) || 12, proactiveMin, 9999);
         settings.delayMin = delayMin;
         settings.delayMax = delayMax;
         settings.replyCountMin = countMin;
@@ -2794,9 +3764,9 @@ function openMailSettings() {
 
 function nextMailProactiveTimestamp() {
   const settings = S.mail.settings;
-  const min = Math.max(1, Number(settings.proactiveMin) || 180);
-  const max = Math.max(min, Number(settings.proactiveMax) || 480);
-  return Date.now() + randInt(min * 60000, max * 60000);
+  const min = Math.max(1, Number(settings.proactiveMin) || 3);
+  const max = Math.max(min, Number(settings.proactiveMax) || 12);
+  return Date.now() + randInt(min * 3600000, max * 3600000);
 }
 
 function scheduleMailTimers() {
@@ -2824,6 +3794,7 @@ function processMailTimers() {
       const original = S.mail.letters.find((letter) => letter.id === pending.letterId);
       const reply = createMailReply(original);
       S.mail.letters.push(reply);
+      if (currentApp() !== "mail") addBadge("mail");
       changed = true;
     }
     S.mail.pending = S.mail.pending.filter((item) => item.dueAt > now);
@@ -2835,6 +3806,7 @@ function processMailTimers() {
     } else {
       const letter = createProactiveMail();
       S.mail.letters.push(letter);
+      if (currentApp() !== "mail") addBadge("mail");
       S.mail.nextProactiveAt = nextMailProactiveTimestamp();
       changed = true;
     }
@@ -3105,7 +4077,6 @@ function ensureCalendarEntry(key) {
   if (!S.calendar.entries[key]) {
     S.calendar.entries[key] = {
       period: false,
-      anniversary: false,
       schedules: [],
       mood: "",
       partnerMood: "",
@@ -3118,7 +4089,8 @@ function ensureCalendarEntry(key) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (date.getTime() <= today.getTime()) {
-      entry.partnerMood = MOODS[hashString(key) % MOODS.length].key;
+      const pool = moodCards();
+      entry.partnerMood = pool.length ? pool[hashString(key) % pool.length].id : MOODS[hashString(key) % MOODS.length].key;
     }
   }
   return entry;
@@ -3142,6 +4114,122 @@ function ensurePartnerMoods(cursor) {
   return changed;
 }
 
+function anniversariesOn(key) {
+  const date = parseDateKey(key);
+  return (S.calendar.anniversaries || []).filter((item) => {
+    if (!item?.date) return false;
+    const start = parseDateKey(item.date);
+    if (item.yearly === false) return item.date === key;
+    return start.getMonth() === date.getMonth() && start.getDate() === date.getDate();
+  });
+}
+
+function periodKeys() {
+  return Object.keys(S.calendar.entries)
+    .filter((key) => S.calendar.entries[key]?.period)
+    .sort();
+}
+
+function predictedPeriodKeys() {
+  const dates = periodKeys();
+  if (!dates.length) return new Set();
+  let cycle = 28;
+  if (dates.length >= 2) {
+    const intervals = [];
+    for (let index = 1; index < dates.length; index += 1) {
+      const gap = Math.round((parseDateKey(dates[index]) - parseDateKey(dates[index - 1])) / 86400000);
+      if (gap >= 18 && gap <= 40) intervals.push(gap);
+    }
+    if (intervals.length) cycle = Math.round(intervals.reduce((sum, value) => sum + value, 0) / intervals.length);
+  }
+  let next = addDays(parseDateKey(dates[dates.length - 1]), cycle);
+  const floor = addDays(new Date(), -6);
+  while (next < floor) next = addDays(next, cycle);
+  const keys = new Set();
+  for (let index = 0; index < 5; index += 1) keys.add(dateKey(addDays(next, index)));
+  return keys;
+}
+
+function todayCalendarEvents() {
+  const key = dateKey();
+  const entry = ensureCalendarEntry(key);
+  const events = [];
+  const anniversaries = anniversariesOn(key);
+  anniversaries.forEach((item) => events.push(`纪念日 · ${item.title || "纪念日"}`));
+  if (entry.period) events.push("经期");
+  if (predictedPeriodKeys().has(key)) events.push("预测经期");
+  (entry.schedules || []).forEach((schedule) => events.push(`日程 · ${schedule.text}`));
+  return events;
+}
+
+function syncCalendarToChat(text) {
+  S.chat.messages.push({
+    id: uid("m"),
+    sender: "me",
+    type: "text",
+    text,
+    timestamp: Date.now(),
+    read: false,
+    quote: null,
+  });
+  saveState();
+  setTimeout(() => queuePartnerReply("calendar", {
+    delay: randInt(1600, 3600),
+    count: 1,
+    quote: false,
+    transfer: false,
+  }), 800);
+}
+
+function checkCalendarProactive() {
+  if (!S.calendar) return;
+  const key = dateKey();
+  S.calendar.notified = S.calendar.notified || {};
+  if (S.calendar.notified[key]) return;
+  const anniversary = anniversariesOn(key).length > 0;
+  const predicted = predictedPeriodKeys().has(key);
+  const period = Boolean(S.calendar.entries[key]?.period);
+  if (!anniversary && !predicted && !period) return;
+  S.calendar.notified[key] = true;
+  const cards = replyCards();
+  const text = anniversary
+    ? pick(["今天是我们的纪念日。", "记得今天吗？我一直记得。", "纪念日快乐，明年也一起。"])
+    : pick(["这几天要照顾好自己。", "如果难受就靠过来。", "给你准备了热水。", "别逞强，我在。"]);
+  S.chat.messages.push({
+    id: uid("m"),
+    sender: "partner",
+    type: "text",
+    text: cards.length && !anniversary ? pick(cards).text : text,
+    timestamp: Date.now(),
+    read: true,
+    quote: null,
+  });
+  saveState();
+  addBadge("chat");
+  notifyPartner({ type: "text", text });
+}
+
+function showDailyReminder() {
+  const key = dateKey();
+  if (S.reminders.lastShownDate === key) return;
+  S.reminders.lastShownDate = key;
+  saveState();
+  const events = todayCalendarEvents();
+  const entry = ensureCalendarEntry(key);
+  const partnerMood = moodEmoji(entry.partnerMood);
+  showSheet({
+    title: "今天",
+    body: `
+      <div class="daily-note">
+        <div class="daily-date">${new Date().getMonth() + 1}月${new Date().getDate()}日 · ${weekdayCN(new Date())}</div>
+        <div class="daily-line">${partnerMood ? `${escapeHTML(S.profile.partnerName || "他")} 今天的心情 ${partnerMood}` : ""}</div>
+        ${events.length ? `<div class="daily-events">${events.map((text) => `<span>${escapeHTML(text)}</span>`).join("")}</div>` : `<div class="daily-line muted">今天没有特别的事。</div>`}
+      </div>
+    `,
+    actions: `<button class="btn primary" data-sheet-close>知道了</button>`,
+  });
+}
+
 function renderCalendarApp() {
   const cursor = ui.calendarCursor;
   if (ensurePartnerMoods(cursor)) saveState();
@@ -3151,6 +4239,7 @@ function renderCalendarApp() {
   const offset = (first.getDay() + 6) % 7;
   const start = new Date(year, month, 1 - offset);
   const todayKey = dateKey();
+  const predicted = predictedPeriodKeys();
   const cells = [];
 
   for (let index = 0; index < 42; index += 1) {
@@ -3159,23 +4248,34 @@ function renderCalendarApp() {
     const key = dateKey(date);
     const outside = date.getMonth() !== month;
     const entry = S.calendar.entries[key] || {};
-    const userMood = entry.mood ? MOODS.find((mood) => mood.key === entry.mood) : null;
-    const partnerMood = entry.partnerMood ? MOODS.find((mood) => mood.key === entry.partnerMood) : null;
+    const userMood = entry.mood ? moodEmoji(entry.mood) : "";
+    const partnerMood = entry.partnerMood ? moodEmoji(entry.partnerMood) : "";
     const dots = [];
     if (entry.period) dots.push('<i class="dot-period"></i>');
-    if (entry.anniversary) dots.push('<i class="dot-anniv"></i>');
+    if (predicted.has(key)) dots.push('<i class="dot-predict"></i>');
+    if (anniversariesOn(key).length) dots.push('<i class="dot-anniv"></i>');
     if (entry.schedules?.length) dots.push('<i class="dot-plan"></i>');
     cells.push(`
-      <button class="cal-cell ${outside ? "outside" : ""} ${key === todayKey ? "today" : ""}" data-calendar-day="${key}">
+      <button class="cal-cell ${outside ? "outside" : ""} ${key === todayKey ? "today" : ""} ${predicted.has(key) ? "predicted" : ""}" data-calendar-day="${key}">
         <span class="cal-num">${date.getDate()}</span>
         <span class="cal-moods">
-          ${userMood ? `<span class="cal-mood">${userMood.emoji}</span>` : ""}
-          ${partnerMood ? `<span class="cal-mood partner">${partnerMood.emoji}</span>` : ""}
+          ${userMood ? `<span class="cal-mood">${escapeHTML(userMood)}</span>` : ""}
+          ${partnerMood ? `<span class="cal-mood partner">${escapeHTML(partnerMood)}</span>` : ""}
         </span>
         <span class="cal-dots">${dots.join("")}</span>
       </button>
     `);
   }
+
+  const upcoming = (S.calendar.anniversaries || [])
+    .map((item) => {
+      const start = parseDateKey(item.date);
+      let next = new Date(year, start.getMonth(), start.getDate());
+      if (next < first && item.yearly !== false) next = new Date(year + 1, start.getMonth(), start.getDate());
+      return { ...item, next };
+    })
+    .sort((a, b) => a.next - b.next)
+    .slice(0, 3);
 
   return `
     <div class="app calendar-app">
@@ -3186,7 +4286,7 @@ function renderCalendarApp() {
       </header>
       <div class="app-body">
         <div class="calendar-top">
-          <div class="calendar-month">${month + 1}<small>${year}</small></div>
+          <button class="calendar-month" id="calendarJumpBtn">${month + 1}<small>${year}</small></button>
           <div class="calendar-nav">
             <button id="calendarPrev" aria-label="上个月">${icon("chevronLeft", 16)}</button>
             <button id="calendarNext" aria-label="下个月">${icon("chevronRight", 16)}</button>
@@ -3196,9 +4296,24 @@ function renderCalendarApp() {
         <div class="calendar-grid">${cells.join("")}</div>
         <div class="calendar-foot">
           <span><i class="dot-period"></i>经期</span>
+          <span><i class="dot-predict"></i>预测</span>
           <span><i class="dot-anniv"></i>纪念日</span>
           <span><i class="dot-plan"></i>日程</span>
         </div>
+        ${upcoming.length ? `
+          <div class="section">
+            <div class="section-head"><div class="section-title">纪念日</div></div>
+            <div class="anniversary-list">
+              ${upcoming.map((item) => `
+                <button class="anniversary-row" data-calendar-day="${dateKey(item.next)}">
+                  <span class="anniversary-dot"></span>
+                  <span class="anniversary-title">${escapeHTML(item.title || "纪念日")}</span>
+                  <span class="anniversary-date">${item.next.getMonth() + 1}月${item.next.getDate()}日</span>
+                </button>
+              `).join("")}
+            </div>
+          </div>
+        ` : ""}
       </div>
     </div>
   `;
@@ -3218,8 +4333,39 @@ function bindCalendarApp() {
     ui.calendarCursor = new Date(now.getFullYear(), now.getMonth(), 1);
     refreshApp("calendar");
   });
+  $("#calendarJumpBtn")?.addEventListener("click", openCalendarJumpSheet);
   $$("[data-calendar-day]").forEach((button) => {
     button.addEventListener("click", () => openDaySheet(button.dataset.calendarDay));
+  });
+}
+
+function openCalendarJumpSheet() {
+  let year = ui.calendarCursor.getFullYear();
+  showSheet({
+    title: "跳转",
+    body: `
+      <div class="jump-year">
+        <button id="jumpYearPrev" aria-label="上一年">${icon("chevronLeft", 16)}</button>
+        <span id="jumpYearLabel">${year}</span>
+        <button id="jumpYearNext" aria-label="下一年">${icon("chevronRight", 16)}</button>
+      </div>
+      <div class="jump-months" id="jumpMonths">
+        ${Array.from({ length: 12 }, (_, index) => `<button class="${index === ui.calendarCursor.getMonth() ? "active" : ""}" data-jump-month="${index}">${index + 1}月</button>`).join("")}
+      </div>
+    `,
+    onMount(host) {
+      const label = host.querySelector("#jumpYearLabel");
+      const paint = () => { label.textContent = String(year); };
+      host.querySelector("#jumpYearPrev").addEventListener("click", () => { year -= 1; paint(); });
+      host.querySelector("#jumpYearNext").addEventListener("click", () => { year += 1; paint(); });
+      host.querySelectorAll("[data-jump-month]").forEach((button) => {
+        button.addEventListener("click", () => {
+          ui.calendarCursor = new Date(year, Number(button.dataset.jumpMonth), 1);
+          closeSheet();
+          setTimeout(() => refreshApp("calendar"), 80);
+        });
+      });
+    },
   });
 }
 
@@ -3235,33 +4381,55 @@ function openDaySheet(key) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const isPastOrToday = date.getTime() <= today.getTime();
-  const partnerMood = entry.partnerMood ? MOODS.find((mood) => mood.key === entry.partnerMood) : null;
+  const partnerMood = entry.partnerMood ? moodEmoji(entry.partnerMood) : "";
+  const moodPool = moodCards();
+  const anniversaries = anniversariesOn(key);
+  const predicted = predictedPeriodKeys().has(key);
+
+  const moodOptions = moodPool.length
+    ? moodPool.map((card) => ({ id: card.id, emoji: card.text, label: card.note || "" }))
+    : MOODS.map((mood) => ({ id: mood.key, emoji: mood.emoji, label: mood.label }));
 
   showSheet({
     title: `${date.getMonth() + 1}月${date.getDate()}日`,
     body: `
       ${isPastOrToday ? `
         <div class="day-partner-mood">
-          <span class="mood-emoji">${partnerMood?.emoji || "—"}</span>
-          <span>${escapeHTML(S.profile.partnerName || "他")}今天的心情 · ${partnerMood?.label || "未记"}</span>
+          <span class="mood-emoji">${partnerMood || "—"}</span>
+          <span>${escapeHTML(S.profile.partnerName || "他")}今天的心情</span>
         </div>
       ` : ""}
+      ${predicted ? `<div class="predicted-note">预测经期 · 记得对自己温柔一点</div>` : ""}
       <div class="field">
         <label class="field-label">我的心情</label>
         <div class="mood-picker">
           <button class="mood-option ${!entry.mood ? "active" : ""}" data-mood="">
             <span class="mood-emoji">·</span><span>未记</span>
           </button>
-          ${MOODS.map((mood) => `
-            <button class="mood-option ${entry.mood === mood.key ? "active" : ""}" data-mood="${mood.key}">
-              <span class="mood-emoji">${mood.emoji}</span><span>${mood.label}</span>
+          ${moodOptions.map((mood) => `
+            <button class="mood-option ${entry.mood === mood.id ? "active" : ""}" data-mood="${escapeAttr(mood.id)}" title="${escapeAttr(mood.label)}">
+              <span class="mood-emoji">${escapeHTML(mood.emoji)}</span>
             </button>
           `).join("")}
         </div>
       </div>
       <div class="day-flags">
         <button class="flag-btn ${entry.period ? "active" : ""}" data-flag="period"><i></i>经期</button>
-        <button class="flag-btn ${entry.anniversary ? "active" : ""}" data-flag="anniversary"><i></i>纪念日</button>
+      </div>
+      <div class="field">
+        <label class="field-label">纪念日</label>
+        <div class="schedule-list">
+          ${anniversaries.length ? anniversaries.map((item) => `
+            <div class="schedule-row">
+              <span>${escapeHTML(item.title || "纪念日")}${item.yearly !== false ? " · 每年" : ""}</span>
+              <button data-delete-anniversary="${item.id}" aria-label="删除纪念日">${icon("close", 12)}</button>
+            </div>
+          `).join("") : '<div class="muted" style="font-size:11px">还没有纪念日</div>'}
+        </div>
+        <div class="schedule-add">
+          <input class="input" id="anniversaryInput" type="text" maxlength="24" placeholder="纪念日名称">
+          <button class="btn sm primary" id="addAnniversaryBtn">添加</button>
+        </div>
       </div>
       <div class="field">
         <label class="field-label">日程</label>
@@ -3290,6 +4458,9 @@ function openDaySheet(key) {
         button.addEventListener("click", () => {
           const flag = button.dataset.flag;
           entry[flag] = !entry[flag];
+          if (entry[flag]) {
+            syncCalendarToChat(`在日历里记下了：${date.getMonth() + 1}月${date.getDate()}日 ${flag === "period" ? "经期" : "纪念日"}。`);
+          }
           refreshCalendarViews(key);
         });
       });
@@ -3298,6 +4469,7 @@ function openDaySheet(key) {
         const text = input.value.trim();
         if (!text) return;
         entry.schedules.push({ id: uid("s"), text });
+        syncCalendarToChat(`在日历里记下了：${date.getMonth() + 1}月${date.getDate()}日 ${text}。`);
         refreshCalendarViews(key);
       });
       host.querySelector("#scheduleInput").addEventListener("keydown", (event) => {
@@ -3306,9 +4478,29 @@ function openDaySheet(key) {
           host.querySelector("#addScheduleBtn").click();
         }
       });
+      host.querySelector("#addAnniversaryBtn").addEventListener("click", () => {
+        const input = host.querySelector("#anniversaryInput");
+        const title = input.value.trim();
+        if (!title) return;
+        S.calendar.anniversaries.push({ id: uid("a"), date: key, title, yearly: true });
+        syncCalendarToChat(`在日历里记下了纪念日：${title}。`);
+        refreshCalendarViews(key);
+      });
+      host.querySelector("#anniversaryInput").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          host.querySelector("#addAnniversaryBtn").click();
+        }
+      });
       host.querySelectorAll("[data-delete-schedule]").forEach((button) => {
         button.addEventListener("click", () => {
           entry.schedules = entry.schedules.filter((item) => item.id !== button.dataset.deleteSchedule);
+          refreshCalendarViews(key);
+        });
+      });
+      host.querySelectorAll("[data-delete-anniversary]").forEach((button) => {
+        button.addEventListener("click", () => {
+          S.calendar.anniversaries = S.calendar.anniversaries.filter((item) => item.id !== button.dataset.deleteAnniversary);
           refreshCalendarViews(key);
         });
       });
@@ -3323,9 +4515,9 @@ function openDaySheet(key) {
 function renderMomentsApp() {
   const posts = S.moments.posts.slice().sort((a, b) => b.createdAt - a.createdAt);
   const coverStyle = S.moments.background ? `background-image:url("${escapeAttr(S.moments.background)}")` : "";
-  const name = S.profile.partnerName || "他";
-  const showName = S.appearance.showPartnerName;
-  const showAvatar = S.appearance.showPartnerAvatar;
+  const name = S.profile.userName || "我";
+  const showName = S.appearance.showUserName;
+  const showAvatar = S.appearance.showUserAvatar;
 
   return `
     <div class="app moments-app">
@@ -3341,10 +4533,10 @@ function renderMomentsApp() {
         <div class="moments-cover" style="${coverStyle}">
           <button class="moments-cover-edit" id="momentsCoverEdit" aria-label="更换封面">${icon("image", 15)}</button>
           <div class="moments-cover-info">
-            ${showAvatar ? avatarHTML("partner", "sm") : ""}
+            ${showAvatar ? avatarHTML("me", "sm") : ""}
             <div>
               ${showName ? `<div class="moments-cover-name">${escapeHTML(name)}</div>` : ""}
-              <div class="moments-cover-sub">MOMENTS</div>
+              <div class="moments-cover-sub">MY MOMENTS</div>
             </div>
           </div>
         </div>
@@ -3364,12 +4556,14 @@ function renderMomentsApp() {
 function momentPostHTML(post) {
   const partnerName = S.profile.partnerName || "他";
   const userName = S.profile.userName || "我";
+  const images = Array.isArray(post.images) ? post.images : [];
   return `
     <div class="moment-post" data-postid="${post.id}">
       ${avatarHTML("me", "sm")}
       <div class="moment-body">
         <div class="moment-name">${escapeHTML(userName)}</div>
-        <div class="moment-content">${escapeHTML(post.content)}</div>
+        ${post.content ? `<div class="moment-content">${escapeHTML(post.content)}</div>` : ""}
+        ${images.length ? `<div class="moment-images count-${Math.min(images.length, 3)}">${images.map((image) => `<button class="moment-image" data-moment-image="${escapeAttr(image)}"><img src="${escapeAttr(image)}" alt=""></button>`).join("")}</div>` : ""}
         <div class="moment-time">${formatRelative(post.createdAt)}</div>
         ${post.comments?.length ? `
           <div class="moment-comments">
@@ -3419,6 +4613,16 @@ function bindMomentsApp() {
       }, true);
     });
   });
+
+  $$("[data-moment-image]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showSheet({
+        title: "",
+        className: "image-sheet",
+        body: `<div class="image-viewer"><img src="${escapeAttr(button.dataset.momentImage)}" alt=""></div>`,
+      });
+    });
+  });
 }
 
 function uploadMomentsBackground() {
@@ -3433,30 +4637,63 @@ function uploadMomentsBackground() {
 }
 
 function openMomentCompose() {
+  let images = [];
   showSheet({
     title: "这一刻",
-    body: `<div class="field"><label class="field-label">内容</label><textarea class="textarea tall" id="momentContent" placeholder="写下这一刻"></textarea></div>`,
+    body: `
+      <div class="field"><label class="field-label">内容</label><textarea class="textarea tall" id="momentContent" placeholder="写下这一刻"></textarea></div>
+      <div class="field">
+        <label class="field-label">图片</label>
+        <button class="sticker-drop" id="momentImagePick">${icon("image", 22)}<span>添加图片</span></button>
+        <div class="sticker-preview-grid" id="momentImagePreview"></div>
+      </div>
+    `,
     actions: `<button class="btn ghost" data-sheet-close>取消</button><button class="btn primary" id="publishMoment">发布</button>`,
     onMount(host) {
+      const preview = host.querySelector("#momentImagePreview");
+      const paint = () => {
+        preview.innerHTML = images.map((image, index) => `
+          <div class="sticker-preview"><img src="${escapeAttr(image)}" alt=""><button data-moment-image-remove="${index}" aria-label="移除">${icon("close", 11)}</button></div>
+        `).join("");
+        preview.querySelectorAll("[data-moment-image-remove]").forEach((button) => {
+          button.addEventListener("click", () => {
+            images.splice(Number(button.dataset.momentImageRemove), 1);
+            paint();
+          });
+        });
+      };
+      host.querySelector("#momentImagePick").addEventListener("click", () => {
+        pickFiles("image/*", (files) => {
+          files.slice(0, 9).forEach((file) => {
+            readImageFile(file, (dataUrl) => {
+              images.push(dataUrl);
+              paint();
+            }, 1200);
+          });
+        });
+      });
       host.querySelector("#publishMoment").addEventListener("click", () => {
         const content = host.querySelector("#momentContent").value.trim();
-        if (!content) {
+        if (!content && !images.length) {
           toast("还没有内容");
           return;
         }
         const post = {
           id: uid("p"),
           content,
+          images: images.slice(),
           createdAt: Date.now(),
           comments: [],
         };
         S.moments.posts.push(post);
-        S.moments.pending.push({
-          id: uid("mop"),
-          postId: post.id,
-          kind: "comment",
-          dueAt: Date.now() + randInt(4200, 9000),
-        });
+        if (Math.random() * 100 < clamp(Number(S.settings.momentCommentChance) || 0, 0, 100)) {
+          S.moments.pending.push({
+            id: uid("mop"),
+            postId: post.id,
+            kind: "comment",
+            dueAt: Date.now() + randInt(4200, 9000),
+          });
+        }
         saveState();
         closeSheet();
         refreshApp("moments");
@@ -3523,7 +4760,7 @@ function processMomentTimers() {
     if (!post) continue;
     if (!Array.isArray(post.comments)) post.comments = [];
     if (pending.kind === "reply") {
-      const cards = availableCards();
+      const cards = replyCards();
       const text = cards.length ? pick(cards).text.trim() : "嗯，我在。";
       post.comments.push({
         id: uid("cm"),
@@ -3534,20 +4771,23 @@ function processMomentTimers() {
       });
       notifyPartner({ type: "text", text: `回复了你的评论：${text}` });
     } else {
-      const cards = availableCards();
-      const count = cards.length ? randInt(1, Math.min(2, cards.length)) : 1;
-      const chosen = cards.length ? sample(cards, count) : [{ text: "看到了。" }];
-      chosen.forEach((card, index) => {
-        post.comments.push({
-          id: uid("cm"),
-          author: "partner",
-          text: card.text.trim(),
-          replyTo: "",
-          createdAt: Date.now() + index * 900,
-        });
+      const cards = replyCards();
+      let text = "看到了。";
+      if (cards.length) {
+        const count = randInt(1, Math.min(3, cards.length));
+        const chosen = sample(cards, count);
+        text = chosen.map((card) => card.text.trim()).filter(Boolean).join("。");
+      }
+      post.comments.push({
+        id: uid("cm"),
+        author: "partner",
+        text,
+        replyTo: "",
+        createdAt: Date.now(),
       });
-      notifyPartner({ type: "text", text: `评论了你的朋友圈：${chosen[0].text.trim()}` });
+      notifyPartner({ type: "text", text: `评论了你的朋友圈：${text}` });
     }
+    if (currentApp() !== "moments") addBadge("moments");
     changed = true;
   }
   S.moments.pending = S.moments.pending.filter((item) => item.dueAt > now);
@@ -3677,6 +4917,28 @@ function renderSettingsApp() {
         </div>
 
         <div class="section">
+          <div class="section-head"><div class="section-title">互动</div></div>
+          <div class="setting-list">
+            <div class="range-block">
+              <div class="range-block-head"><span class="row-label">拍一拍概率</span><span class="range-value" id="patChanceValue">${settings.patChance}%</span></div>
+              <input class="range" id="patChanceRange" type="range" min="0" max="100" step="1" value="${settings.patChance}">
+            </div>
+            <div class="range-block">
+              <div class="range-block-head"><span class="row-label">朋友圈评论概率</span><span class="range-value" id="momentChanceValue">${settings.momentCommentChance}%</span></div>
+              <input class="range" id="momentChanceRange" type="range" min="0" max="100" step="1" value="${settings.momentCommentChance}">
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-copy"><div class="toggle-title">后台保持</div></div>
+              <button class="toggle ${settings.keepAlive ? "on" : ""}" data-settings-toggle="keepAlive"></button>
+            </div>
+            <div class="setting-field-row">
+              <span class="row-label">在一起</span>
+              <input class="input wide" id="togetherSinceInput" type="date" value="${escapeAttr(S.profile.togetherSince || dateKey())}">
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
           <div class="section-head"><div class="section-title">转账</div></div>
           <div class="setting-list">
             <div class="range-block">
@@ -3751,6 +5013,10 @@ function bindSettingsApp() {
           clearTimeout(ui.proactiveTimer);
         }
         scheduleProactiveChat();
+      }
+      if (key === "keepAlive") {
+        if (value) startKeepAlive();
+        else stopKeepAlive();
       }
       saveState();
     });
@@ -3827,6 +5093,41 @@ function bindSettingsApp() {
       saveState();
     });
   }
+
+  const patRange = $("#patChanceRange");
+  if (patRange) {
+    setRangeFill(patRange);
+    patRange.addEventListener("input", () => {
+      S.settings.patChance = Number(patRange.value);
+      const label = $("#patChanceValue");
+      if (label) label.textContent = `${patRange.value}%`;
+      setRangeFill(patRange);
+      saveState();
+    });
+    patRange.addEventListener("change", () => {
+      if (Number(patRange.value) > 0 && !S.chat.nextPatAt) S.chat.nextPatAt = Date.now() + randInt(28, 95) * 60000;
+      saveState();
+      schedulePatTimer();
+    });
+  }
+
+  const momentRange = $("#momentChanceRange");
+  if (momentRange) {
+    setRangeFill(momentRange);
+    momentRange.addEventListener("input", () => {
+      S.settings.momentCommentChance = Number(momentRange.value);
+      const label = $("#momentChanceValue");
+      if (label) label.textContent = `${momentRange.value}%`;
+      setRangeFill(momentRange);
+      saveState();
+    });
+  }
+
+  $("#togetherSinceInput")?.addEventListener("change", (event) => {
+    S.profile.togetherSince = event.target.value || dateKey();
+    saveState();
+    renderHome();
+  });
 
   $("#typingTextInput")?.addEventListener("change", (event) => {
     S.settings.typingText = event.target.value.trim() || "正在输入…";
@@ -4284,8 +5585,678 @@ function fireProactiveChat() {
 }
 
 /* =========================================================
-   Init
+   Itinerary
    ========================================================= */
+
+function ensureItinerary(key) {
+  if (!S.itinerary.entries[key]?.items?.length) {
+    const places = itineraryCard("place").map((card) => card.text).filter(Boolean);
+    const doings = itineraryCard("doing").map((card) => card.text).filter(Boolean);
+    const placePool = places.length ? places : ["窗边", "街角", "家里"];
+    const doingPool = doings.length ? doings : ["发呆", "看书", "听歌"];
+    const count = randInt(3, 6);
+    const items = [];
+    let minutes = 8 * 60 + randInt(0, 90);
+    for (let index = 0; index < count; index += 1) {
+      items.push({
+        id: uid("it"),
+        time: minutesToTime(minutes),
+        place: pick(placePool),
+        doing: pick(doingPool),
+      });
+      minutes += randInt(90, 190);
+      if (minutes > 22 * 60 + 30) break;
+    }
+    S.itinerary.entries[key] = { items };
+    saveState();
+  }
+  return S.itinerary.entries[key];
+}
+
+function generateTodayItinerary() {
+  const key = dateKey();
+  ensureItinerary(key);
+  if (S.itinerary.lastGenerated !== key) {
+    S.itinerary.lastGenerated = key;
+    saveState();
+    if (currentApp() !== "itinerary") addBadge("itinerary");
+  }
+}
+
+function formatDateFull(key) {
+  const date = parseDateKey(key);
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+}
+
+function renderItineraryApp() {
+  const key = ui.itineraryCursor || dateKey();
+  const entry = ensureItinerary(key);
+  const items = entry.items.slice().sort((a, b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
+  const today = dateKey();
+
+  return `
+    <div class="app itinerary-app">
+      <header class="app-header">
+        <button class="icon-btn" data-back aria-label="返回">${icon("back", 20)}</button>
+        <div class="header-main"><div class="app-title">行程</div></div>
+        <div class="header-actions"><button class="icon-btn" id="itineraryToday" aria-label="今天">${icon("today", 18)}</button></div>
+      </header>
+      <div class="app-body">
+        <div class="itinerary-top">
+          <button id="itineraryPrev" aria-label="前一天">${icon("chevronLeft", 18)}</button>
+          <div class="itinerary-date">
+            <div class="itinerary-day">${escapeHTML(formatDateFull(key))}</div>
+            <div class="itinerary-week">${key === today ? "今天" : weekdayCN(parseDateKey(key))}</div>
+          </div>
+          <button id="itineraryNext" aria-label="后一天">${icon("chevronRight", 18)}</button>
+        </div>
+        <div class="itinerary-line">
+          ${items.map((item) => `
+            <div class="itinerary-item">
+              <div class="itinerary-time">${escapeHTML(item.time)}</div>
+              <div class="itinerary-node"><i></i></div>
+              <div class="itinerary-card">
+                <div class="itinerary-place">${icon("pin", 13)}${escapeHTML(item.place)}</div>
+                <div class="itinerary-doing">${escapeHTML(item.doing)}</div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function bindItineraryApp() {
+  const shift = (days) => {
+    ui.itineraryCursor = dateKey(addDays(parseDateKey(ui.itineraryCursor || dateKey()), days));
+    refreshApp("itinerary");
+  };
+  $("#itineraryPrev")?.addEventListener("click", () => shift(-1));
+  $("#itineraryNext")?.addEventListener("click", () => shift(1));
+  $("#itineraryToday")?.addEventListener("click", () => {
+    ui.itineraryCursor = dateKey();
+    refreshApp("itinerary");
+  });
+}
+
+/* =========================================================
+   Gift cabinet
+   ========================================================= */
+
+const GIFT_CATEGORIES = ["饮食", "娱乐", "服装", "手工制品", "饰品", "物品", "玩具", "其他"];
+const GIFT_BOX_COLORS = [
+  ["rose", "雾粉"],
+  ["ink", "墨黑"],
+  ["gold", "暖金"],
+  ["sage", "青灰"],
+  ["mist", "月白"],
+];
+
+function renderGiftsApp() {
+  const gifts = S.gifts.items.slice().sort((a, b) => b.createdAt - a.createdAt);
+  return `
+    <div class="app gifts-app">
+      <header class="app-header">
+        <button class="icon-btn" data-back aria-label="返回">${icon("back", 20)}</button>
+        <div class="header-main"><div class="app-title">礼物柜</div></div>
+        <div class="header-actions"><button class="icon-btn filled" id="giftAddBtn" aria-label="添加礼物">${icon("plus", 19)}</button></div>
+      </header>
+      <div class="app-body">
+        ${gifts.length ? `
+          <div class="gift-grid">
+            ${gifts.map((gift) => `
+              <div class="gift-item" data-gift-id="${gift.id}">
+                <button class="gift-item-main" data-gift-send="${gift.id}">
+                  <div class="gift-item-image">${gift.image ? `<img src="${escapeAttr(gift.image)}" alt="">` : icon("gift", 34)}</div>
+                  <div class="gift-item-name">${escapeHTML(gift.name)}</div>
+                  <div class="gift-item-cat">${escapeHTML(gift.category || "物品")}</div>
+                  ${gift.message ? `<div class="gift-item-msg">${escapeHTML(gift.message)}</div>` : ""}
+                </button>
+                <div class="gift-item-actions">
+                  <button class="btn sm primary" data-gift-send="${gift.id}">送出</button>
+                  <button class="icon-btn" data-gift-more="${gift.id}" aria-label="礼物操作">${icon("more", 16)}</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        ` : `<div class="empty">${icon("gift", 34)}<p>礼物柜还是空的</p></div>`}
+      </div>
+    </div>
+  `;
+}
+
+function bindGiftsApp() {
+  $("#giftAddBtn")?.addEventListener("click", openGiftCompose);
+  $$("[data-gift-send]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const gift = S.gifts.items.find((item) => item.id === button.dataset.giftSend);
+      if (gift) openGiftSendSheet(gift);
+    });
+  });
+  $$("[data-gift-more]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const gift = S.gifts.items.find((item) => item.id === button.dataset.giftMore);
+      if (gift) openGiftActions(gift);
+    });
+  });
+}
+
+function openGiftCompose() {
+  let image = "";
+  showSheet({
+    title: "添加礼物",
+    body: `
+      <div class="field">
+        <label class="field-label">名称</label>
+        <input class="input" id="giftName" type="text" maxlength="24" placeholder="礼物名称">
+      </div>
+      <div class="field">
+        <label class="field-label">分类</label>
+        <select class="select" id="giftCategory">
+          ${GIFT_CATEGORIES.map((item) => `<option value="${item}">${item}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">想说的话</label>
+        <textarea class="textarea" id="giftMessage" placeholder="写一句放在礼物里的话"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">图片</label>
+        <button class="sticker-drop" id="giftImagePick">${icon("image", 22)}<span>选择图片</span></button>
+        <div class="sticker-preview-grid" id="giftImagePreview"></div>
+      </div>
+    `,
+    actions: `<button class="btn ghost" data-sheet-close>取消</button><button class="btn primary" id="saveGift">保存</button>`,
+    onMount(host) {
+      const preview = host.querySelector("#giftImagePreview");
+      host.querySelector("#giftImagePick").addEventListener("click", () => {
+        pickFile("image/*", (file) => {
+          readImageFile(file, (dataUrl) => {
+            image = dataUrl;
+            preview.innerHTML = `<div class="sticker-preview"><img src="${escapeAttr(image)}" alt=""></div>`;
+          }, 900);
+        });
+      });
+      host.querySelector("#saveGift").addEventListener("click", () => {
+        const name = host.querySelector("#giftName").value.trim();
+        if (!name) {
+          toast("给礼物起个名字");
+          return;
+        }
+        S.gifts.items.push({
+          id: uid("gift"),
+          name,
+          category: host.querySelector("#giftCategory").value,
+          message: host.querySelector("#giftMessage").value.trim(),
+          image,
+          createdAt: Date.now(),
+        });
+        saveState();
+        closeSheet();
+        refreshApp("gifts");
+        toast("已放进礼物柜");
+      });
+    },
+  });
+}
+
+function openGiftActions(gift) {
+  showSheet({
+    title: "礼物",
+    body: `<div class="gift-detail">
+      ${gift.image ? `<div class="gift-detail-image"><img src="${escapeAttr(gift.image)}" alt=""></div>` : `<div class="gift-detail-image placeholder">${icon("gift", 40)}</div>`}
+      <div class="gift-detail-name">${escapeHTML(gift.name)}</div>
+      <div class="gift-detail-cat">${escapeHTML(gift.category || "物品")}</div>
+      ${gift.message ? `<div class="gift-detail-message">${escapeHTML(gift.message)}</div>` : ""}
+    </div>
+    <div class="action-list">
+      <button class="action-item" data-action="send">${icon("send", 17)}送给对方</button>
+      <button class="action-item danger" data-action="delete">${icon("trash", 17)}删除</button>
+    </div>`,
+    onMount(host) {
+      host.querySelector('[data-action="send"]')?.addEventListener("click", () => {
+        closeSheet();
+        setTimeout(() => openGiftSendSheet(gift), 100);
+      });
+      host.querySelector('[data-action="delete"]')?.addEventListener("click", () => {
+        closeSheet();
+        setTimeout(() => {
+          showConfirm("删除礼物", "它会从礼物柜里消失。", "删除", () => {
+            S.gifts.items = S.gifts.items.filter((item) => item.id !== gift.id);
+            saveState();
+            refreshApp("gifts");
+          }, true);
+        }, 100);
+      });
+    },
+  });
+}
+
+function openGiftSendSheet(gift) {
+  let color = "rose";
+  showSheet({
+    title: "送出礼物",
+    body: `
+      <div class="gift-detail">
+        ${gift.image ? `<div class="gift-detail-image"><img src="${escapeAttr(gift.image)}" alt=""></div>` : `<div class="gift-detail-image placeholder">${icon("gift", 40)}</div>`}
+        <div class="gift-detail-name">${escapeHTML(gift.name)}</div>
+        ${gift.message ? `<div class="gift-detail-message">${escapeHTML(gift.message)}</div>` : ""}
+      </div>
+      <div class="field">
+        <label class="field-label">礼物盒颜色</label>
+        <div class="box-colors">
+          ${GIFT_BOX_COLORS.map(([key, label]) => `<button class="box-color box-${key} ${key === color ? "active" : ""}" data-box-color="${key}" aria-label="${label}"><i></i><span>${label}</span></button>`).join("")}
+        </div>
+      </div>
+    `,
+    actions: `<button class="btn ghost" data-sheet-close>取消</button><button class="btn primary" id="sendGiftBtn">送出去</button>`,
+    onMount(host) {
+      host.querySelectorAll("[data-box-color]").forEach((button) => {
+        button.addEventListener("click", () => {
+          color = button.dataset.boxColor;
+          host.querySelectorAll("[data-box-color]").forEach((item) => item.classList.toggle("active", item === button));
+        });
+      });
+      host.querySelector("#sendGiftBtn").addEventListener("click", () => {
+        S.chat.messages.push({
+          id: uid("m"),
+          sender: "me",
+          type: "gift",
+          giftName: gift.name,
+          giftImage: gift.image,
+          giftMessage: gift.message,
+          giftCategory: gift.category,
+          boxColor: color,
+          opened: false,
+          timestamp: Date.now(),
+          read: false,
+          quote: null,
+        });
+        saveState();
+        closeSheet();
+        refreshApp("gifts");
+        setTimeout(() => queuePartnerReply("gift", {
+          delay: randInt(1800, 3600),
+          count: 1,
+          quote: false,
+          transfer: false,
+        }), 900);
+        toast("礼物已经送出");
+        setTimeout(() => openApp("chat"), 260);
+      });
+    },
+  });
+}
+
+/* =========================================================
+   Entertainment
+   ========================================================= */
+
+function computeOverlap(test) {
+  if (!test?.userAnswers || !test?.partnerAnswers) return 0;
+  const total = test.questions.length || 1;
+  let same = 0;
+  test.questions.forEach((question, index) => {
+    if (test.userAnswers[index] === test.partnerAnswers[index]) same += 1;
+  });
+  return Math.round((same / total) * 100);
+}
+
+function renderEntertainmentApp() {
+  const tab = ui.entertainmentTab === "survey" ? "survey" : "soul";
+  const tests = S.entertainment.tests.slice().sort((a, b) => b.createdAt - a.createdAt);
+  const surveys = S.entertainment.surveys.slice().sort((a, b) => b.createdAt - a.createdAt);
+
+  return `
+    <div class="app entertainment-app">
+      <header class="app-header">
+        <button class="icon-btn" data-back aria-label="返回">${icon("back", 20)}</button>
+        <div class="header-main"><div class="app-title">娱乐</div></div>
+        <div class="header-actions">
+          ${tab === "soul" ? `<button class="icon-btn filled" id="testAddBtn" aria-label="创建测试">${icon("plus", 19)}</button>` : ""}
+        </div>
+      </header>
+      <div class="app-body">
+        <div class="segmented ent-tabs">
+          <button class="${tab === "soul" ? "active" : ""}" data-ent-tab="soul">灵魂默契</button>
+          <button class="${tab === "survey" ? "active" : ""}" data-ent-tab="survey">问卷</button>
+        </div>
+        ${tab === "soul" ? `
+          ${tests.length ? tests.map((test) => {
+            const revealed = Boolean(test.revealed);
+            const status = revealed ? "已揭晓" : test.userAnswers ? "等待对方" : "待作答";
+            return `
+              <button class="test-list-item" data-open-test="${test.id}">
+                <span class="test-list-main">
+                  <span class="test-list-title">${escapeHTML(test.title)}</span>
+                  <span class="test-list-sub">${test.questions.length} 个问题 · ${status}</span>
+                </span>
+                ${revealed ? `<span class="test-overlap">${computeOverlap(test)}<small>%</small></span>` : `<span class="test-list-arrow">${icon("chevronRight", 16)}</span>`}
+              </button>
+            `;
+          }).join("") : `<div class="empty">${icon("dice", 34)}<p>还没有默契测试</p></div>`}
+        ` : `
+          ${surveys.length ? surveys.map((survey) => `
+            <div class="survey-archive" data-survey-id="${survey.id}">
+              <div class="survey-archive-title">${escapeHTML(survey.question)}</div>
+              <div class="survey-archive-answer">${escapeHTML((survey.selected || []).join("、") || "未回答")}</div>
+              <div class="survey-archive-foot">
+                <span>${formatShortDate(survey.createdAt)}</span>
+                <button data-delete-survey="${survey.id}">删除</button>
+              </div>
+            </div>
+          `).join("") : `<div class="empty">${icon("survey", 34)}<p>还没有发过问卷</p></div>`}
+        `}
+      </div>
+    </div>
+  `;
+}
+
+function bindEntertainmentApp() {
+  $$("[data-ent-tab]").forEach((button) => {
+    button.addEventListener("click", () => {
+      ui.entertainmentTab = button.dataset.entTab;
+      refreshApp("entertainment");
+    });
+  });
+  $("#testAddBtn")?.addEventListener("click", openTestCompose);
+  $$("[data-open-test]").forEach((button) => {
+    button.addEventListener("click", () => openTestById(button.dataset.openTest));
+  });
+  $$("[data-delete-survey]").forEach((button) => {
+    button.addEventListener("click", () => {
+      S.entertainment.surveys = S.entertainment.surveys.filter((item) => item.id !== button.dataset.deleteSurvey);
+      saveState();
+      refreshApp("entertainment");
+    });
+  });
+}
+
+function testQuestionBlockHTML() {
+  return `
+    <div class="test-q" data-q>
+      <div class="test-q-head">
+        <span class="test-q-index">问题</span>
+        <button data-remove-q aria-label="删除问题">${icon("close", 12)}</button>
+      </div>
+      <input class="input test-q-text" type="text" maxlength="60" placeholder="问一个问题">
+      <div class="test-q-options">
+        <input class="input" type="text" maxlength="30" placeholder="选项一">
+        <input class="input" type="text" maxlength="30" placeholder="选项二">
+      </div>
+      <button class="btn sm ghost" data-add-option>${icon("plus", 13)}选项</button>
+    </div>
+  `;
+}
+
+function openTestCompose() {
+  showSheet({
+    title: "默契测试",
+    body: `
+      <div class="field">
+        <label class="field-label">标题</label>
+        <input class="input" id="testTitle" type="text" maxlength="30" placeholder="测试的名字">
+      </div>
+      <div class="test-questions" id="testQuestions">${testQuestionBlockHTML()}</div>
+      <button class="btn sm ghost" id="addTestQuestion">${icon("plus", 14)}添加问题</button>
+    `,
+    actions: `<button class="btn ghost" data-sheet-close>取消</button><button class="btn primary" id="saveTest">保存</button>`,
+    onMount(host) {
+      const container = host.querySelector("#testQuestions");
+      const bindQuestion = (block) => {
+        block.querySelector("[data-remove-q]").addEventListener("click", () => {
+          if (container.querySelectorAll("[data-q]").length <= 1) {
+            toast("至少保留一个问题");
+            return;
+          }
+          block.remove();
+        });
+        block.querySelector("[data-add-option]").addEventListener("click", () => {
+          const options = block.querySelector(".test-q-options");
+          if (options.children.length >= 6) {
+            toast("最多六个选项");
+            return;
+          }
+          const input = document.createElement("input");
+          input.className = "input";
+          input.type = "text";
+          input.maxLength = 30;
+          input.placeholder = `选项${options.children.length + 1}`;
+          options.appendChild(input);
+          input.focus();
+        });
+      };
+      container.querySelectorAll("[data-q]").forEach(bindQuestion);
+      host.querySelector("#addTestQuestion").addEventListener("click", () => {
+        if (container.querySelectorAll("[data-q]").length >= 10) {
+          toast("最多十个问题");
+          return;
+        }
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = testQuestionBlockHTML();
+        const block = wrapper.firstElementChild;
+        container.appendChild(block);
+        bindQuestion(block);
+        block.querySelector(".test-q-text").focus();
+      });
+      host.querySelector("#saveTest").addEventListener("click", () => {
+        const title = host.querySelector("#testTitle").value.trim();
+        if (!title) {
+          toast("先写下标题");
+          return;
+        }
+        const questions = [];
+        container.querySelectorAll("[data-q]").forEach((block) => {
+          const text = block.querySelector(".test-q-text").value.trim();
+          const options = Array.from(block.querySelectorAll(".test-q-options input"))
+            .map((input) => input.value.trim())
+            .filter(Boolean);
+          const unique = Array.from(new Set(options));
+          if (text && unique.length >= 2) {
+            questions.push({ id: uid("q"), text, options: unique.slice(0, 6) });
+          }
+        });
+        if (!questions.length) {
+          toast("至少写一个完整的问题");
+          return;
+        }
+        S.entertainment.tests.push({
+          id: uid("test"),
+          title,
+          questions,
+          userAnswers: null,
+          partnerAnswers: null,
+          revealed: false,
+          sent: false,
+          createdAt: Date.now(),
+        });
+        saveState();
+        closeSheet();
+        ui.entertainmentTab = "soul";
+        refreshApp("entertainment");
+        toast("测试已创建");
+      });
+    },
+  });
+}
+
+function openTestById(id) {
+  const test = S.entertainment.tests.find((item) => item.id === id);
+  if (test) openTestSheet(test);
+}
+
+function openTestSheet(test) {
+  if (test.revealed) {
+    const overlap = computeOverlap(test);
+    showSheet({
+      title: test.title,
+      body: `
+        <div class="overlap-hero">
+          <div class="overlap-number">${overlap}<small>%</small></div>
+          <div class="overlap-label">灵魂默契</div>
+        </div>
+        <div class="test-result-list">
+          ${test.questions.map((question, index) => {
+            const mine = test.userAnswers?.[index];
+            const theirs = test.partnerAnswers?.[index];
+            const match = mine === theirs;
+            return `
+              <div class="test-result-item ${match ? "match" : ""}">
+                <div class="test-result-q">${escapeHTML(question.text)}</div>
+                <div class="test-result-answers">
+                  <span>你 · ${escapeHTML(question.options[mine] ?? "—")}</span>
+                  <span>${escapeHTML(S.profile.partnerName || "他")} · ${escapeHTML(question.options[theirs] ?? "—")}</span>
+                </div>
+                ${match ? `<div class="test-result-mark">${icon("check", 12)}一致</div>` : ""}
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `,
+      actions: `<button class="btn ghost" id="sendTestChat">发到聊天</button><button class="btn primary" data-sheet-close>收好</button>`,
+      onMount(host) {
+        host.querySelector("#sendTestChat").addEventListener("click", () => {
+          sendTestToChat(test);
+          closeSheet();
+        });
+      },
+    });
+    return;
+  }
+
+  if (test.userAnswers) {
+    showSheet({
+      title: test.title,
+      body: `
+        <div class="test-waiting">
+          <span class="test-waiting-dot"></span>
+          <p>已经作答，等对方也答完就能看见结果。</p>
+        </div>
+      `,
+      actions: `<button class="btn primary" data-sheet-close>好</button>`,
+    });
+    return;
+  }
+
+  const answers = new Array(test.questions.length).fill(-1);
+  showSheet({
+    title: test.title,
+    body: `
+      <div class="test-answer-list">
+        ${test.questions.map((question, qIndex) => `
+          <div class="test-answer-q">
+            <div class="test-answer-title">${qIndex + 1}. ${escapeHTML(question.text)}</div>
+            <div class="test-answer-options">
+              ${question.options.map((option, oIndex) => `
+                <button class="test-answer-option" data-answer-q="${qIndex}" data-answer-o="${oIndex}">${escapeHTML(option)}</button>
+              `).join("")}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `,
+    actions: `<button class="btn ghost" data-sheet-close>取消</button><button class="btn primary" id="submitTest">提交</button>`,
+    onMount(host) {
+      host.querySelectorAll("[data-answer-q]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const qIndex = Number(button.dataset.answerQ);
+          answers[qIndex] = Number(button.dataset.answerO);
+          host.querySelectorAll(`[data-answer-q="${qIndex}"]`).forEach((item) => item.classList.toggle("active", item === button));
+        });
+      });
+      host.querySelector("#submitTest").addEventListener("click", () => {
+        if (answers.some((value) => value < 0)) {
+          toast("每一题都要选一个");
+          return;
+        }
+        test.userAnswers = answers.slice();
+        saveState();
+        closeSheet();
+        refreshApp("entertainment");
+        toast("已提交，等对方作答");
+        setTimeout(() => {
+          test.partnerAnswers = test.questions.map((question) => randInt(0, question.options.length - 1));
+          test.revealed = true;
+          saveState();
+          refreshApp("entertainment");
+          toast(`${S.profile.partnerName || "他"}也答完了`);
+        }, randInt(2600, 6000));
+      });
+    },
+  });
+}
+
+function sendTestToChat(test) {
+  if (!test) return;
+  S.chat.messages.push({
+    id: uid("m"),
+    sender: "me",
+    type: "test",
+    testId: test.id,
+    title: test.title,
+    timestamp: Date.now(),
+    read: false,
+    quote: null,
+  });
+  test.sent = true;
+  saveState();
+  toast("已发到聊天");
+  setTimeout(() => openApp("chat"), 240);
+}
+
+/* =========================================================
+   Keep alive & status ticker
+   ========================================================= */
+
+function requestWakeLock() {
+  if (!S.settings.keepAlive) return;
+  if (!navigator.wakeLock?.request) return;
+  navigator.wakeLock.request("screen").then((lock) => {
+    ui.wakeLock = lock;
+    lock.addEventListener("release", () => {
+      ui.wakeLock = null;
+    });
+  }).catch(() => {});
+}
+
+function startKeepAlive() {
+  if (!S.settings.keepAlive) return;
+  requestWakeLock();
+  if (!ui.keepAliveWorker && window.Worker && window.Blob && window.URL) {
+    try {
+      const source = "let t=null;onmessage=e=>{if(e.data==='start'){clearInterval(t);t=setInterval(()=>postMessage('tick'),20000)}else{clearInterval(t);t=null}}";
+      const blob = new Blob([source], { type: "text/javascript" });
+      ui.keepAliveWorker = new Worker(URL.createObjectURL(blob));
+      ui.keepAliveWorker.postMessage("start");
+    } catch (error) {
+      ui.keepAliveWorker = null;
+    }
+  }
+  clearInterval(ui.keepAliveTimer);
+  ui.keepAliveTimer = setInterval(() => {
+    scheduleProactiveChat();
+    scheduleMailTimers();
+    scheduleMomentTimers();
+    schedulePatTimer();
+    if (document.visibilityState === "visible") requestWakeLock();
+  }, 60000);
+}
+
+function stopKeepAlive() {
+  clearInterval(ui.keepAliveTimer);
+  ui.keepAliveTimer = null;
+  if (ui.keepAliveWorker) {
+    try { ui.keepAliveWorker.postMessage("stop"); ui.keepAliveWorker.terminate(); } catch (error) {}
+    ui.keepAliveWorker = null;
+  }
+  if (ui.wakeLock) {
+    try { ui.wakeLock.release(); } catch (error) {}
+    ui.wakeLock = null;
+  }
+}
+
+
 
 function init() {
   applyAppearance();
@@ -4294,14 +6265,31 @@ function init() {
   startIntro();
 
   setInterval(updateHomeInfo, 30000);
+  setInterval(() => {
+    if (currentApp() === "chat") refreshChatStatusLine();
+  }, 45000);
 
   if (S.chat.pendingReply) {
     ui.typing = true;
     scheduleReplyTimer();
   }
+  generateTodayItinerary();
   scheduleProactiveChat();
   scheduleMailTimers();
   scheduleMomentTimers();
+  schedulePatTimer();
+  checkCalendarProactive();
+  if (S.settings.keepAlive) startKeepAlive();
+
+  setTimeout(showDailyReminder, 1500);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && S.settings.keepAlive) {
+      requestWakeLock();
+      checkCalendarProactive();
+      if (currentApp() === "chat") refreshChatStatusLine();
+    }
+  });
 
   if (window.matchMedia) {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
